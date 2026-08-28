@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Process Tracker</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --blue-900:#1e3a8a; --blue-700:#1d4ed8; --blue-600:#2563eb; --blue-400:#3b82f6;
+    --blue-200:#bfdbfe; --blue-100:#dbeafe; --blue-50:#eff6ff;
+    --cyan-600:#0891b2; --cyan-100:#cffafe;
+    --red-500:#ef4444; --red-100:#fee2e2;
+    --slate-900:#0f172a; --slate-700:#334155; --slate-600:#475569; --slate-500:#64748b;
+    --slate-400:#94a3b8; --slate-200:#e2e8f0; --slate-100:#f1f5f9;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:'Segoe UI', Tahoma, Arial, sans-serif;
+    background:linear-gradient(180deg,var(--blue-50) 0%, #f8fafc 100%);
+    color:var(--slate-900); min-height:100vh;
+  }
+  .wrap{max-width:1200px;margin:0 auto;padding:24px;}
+  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;flex-wrap:wrap;gap:12px;}
+  .header h1{margin:0;font-size:26px;font-weight:800;color:var(--blue-900);}
+  .header p{margin:4px 0 0;color:var(--slate-500);font-size:14px;}
+  .btn-primary{
+    display:flex;align-items:center;gap:8px;background:var(--blue-600);color:#fff;
+    border:none;padding:12px 20px;border-radius:12px;font-weight:700;font-size:14px;
+    box-shadow:0 4px 12px rgba(37,99,235,.3);cursor:pointer;
+  }
+  .btn-primary:hover{background:var(--blue-700);}
+  .btn-primary:disabled{opacity:.6;cursor:default;}
+  .btn-secondary{
+    display:flex;align-items:center;gap:6px;background:#fff;color:var(--blue-700);
+    border:1px solid var(--blue-200);padding:11px 16px;border-radius:12px;font-weight:700;font-size:13px;cursor:pointer;
+  }
+  .btn-secondary:hover{background:var(--blue-50);}
+  .card{background:#fff;border-radius:16px;box-shadow:0 1px 3px rgba(15,23,42,.06),0 1px 2px rgba(15,23,42,.04);border:1px solid var(--slate-200);}
+  .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-bottom:24px;}
+  .stat-card{padding:18px;display:flex;align-items:center;gap:12px;}
+  .stat-icon{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .stat-value{font-size:22px;font-weight:800;}
+  .stat-label{font-size:12px;color:var(--slate-500);}
+  .charts-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:24px;}
+  @media(max-width:800px){.charts-grid{grid-template-columns:1fr;}}
+  .chart-card{padding:20px;}
+  .chart-card h3{margin:0 0 12px;font-size:15px;color:var(--slate-700);}
+  .chart-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
+  .chart-head span{font-size:13px;color:var(--blue-600);font-weight:700;}
+  .filters{padding:16px;margin-bottom:16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .search-wrap{position:relative;flex:1 1 220px;}
+  .search-wrap input{width:100%;padding:10px 12px 10px 36px;border-radius:10px;border:1px solid var(--slate-200);font-size:14px;}
+  .search-wrap::before{content:"🔍";position:absolute;left:10px;top:9px;font-size:14px;opacity:.5;}
+  select, input[type=text], input[type=email], input[type=date], input[type=number], input[type=password], textarea{
+    padding:10px 12px;border-radius:10px;border:1px solid var(--slate-200);font-size:14px;font-family:inherit;background:#fff;
+  }
+  .task-list{display:grid;gap:12px;}
+  .task-card{padding:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;transition:box-shadow .15s;}
+  .task-card:hover{box-shadow:0 4px 14px rgba(37,99,235,.12);}
+  .task-main{flex:1;min-width:0;}
+  .task-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
+  .task-name{font-weight:700;font-size:15px;}
+  .badge{font-size:12px;padding:3px 10px;border-radius:999px;font-weight:700;}
+  .task-desc{margin:0;font-size:13px;color:var(--slate-500);}
+  .task-due{display:flex;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:var(--slate-400);}
+  .task-progress{width:120px;flex-shrink:0;}
+  .task-progress-label{display:flex;justify-content:space-between;font-size:12px;color:var(--slate-500);margin-bottom:4px;}
+  .progress-track{background:var(--slate-200);height:8px;border-radius:999px;overflow:hidden;}
+  .progress-fill{height:100%;background:linear-gradient(90deg,var(--blue-400),var(--blue-600));border-radius:999px;}
+  .empty{padding:32px;text-align:center;color:var(--slate-400);}
+  .modal-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);display:none;align-items:center;justify-content:center;z-index:50;padding:16px;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:#fff;border-radius:16px;padding:24px;width:100%;max-width:480px;max-height:85vh;overflow-y:auto;}
+  .modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+  .modal-head h3{margin:0;font-size:17px;color:var(--blue-900);}
+  .modal-close{background:var(--slate-100);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:14px;}
+  .form-col{display:flex;flex-direction:column;gap:12px;}
+  .form-row{display:flex;gap:10px;}
+  .form-row > div{flex:1;}
+  label.field-label{font-size:12px;color:var(--slate-500);display:block;margin-bottom:4px;}
+  textarea{min-height:70px;resize:vertical;width:100%;}
+  .btn-save{background:var(--blue-600);color:#fff;border:none;border-radius:10px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;}
+  .btn-save:hover{background:var(--blue-700);}
+  .btn-save:disabled{opacity:.6;cursor:default;}
+  .note-item{background:var(--blue-50);padding:8px 12px;border-radius:8px;font-size:13px;color:var(--blue-900);}
+  .note-list{display:flex;flex-direction:column;gap:6px;max-height:140px;overflow-y:auto;margin-bottom:10px;}
+  .note-add{display:flex;gap:8px;}
+  .note-add input{flex:1;}
+  .btn-add{background:var(--blue-600);color:#fff;border:none;border-radius:10px;padding:0 16px;font-weight:700;font-size:13px;cursor:pointer;}
+  .footer-note{text-align:center;color:var(--slate-400);font-size:12px;margin-top:24px;}
+  ::-webkit-scrollbar{width:8px;height:8px;}
+  ::-webkit-scrollbar-thumb{background:var(--blue-200);border-radius:10px;}
+
+  #loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+  .login-card{background:#fff;border-radius:20px;padding:36px;width:100%;max-width:380px;
+    box-shadow:0 10px 30px rgba(30,58,138,.12);border:1px solid var(--slate-200);}
+  .login-card h2{margin:0 0 4px;color:var(--blue-900);font-size:22px;}
+  .login-card p.sub{margin:0 0 20px;color:var(--slate-500);font-size:13px;}
+  .login-tabs{display:flex;gap:6px;background:var(--slate-100);border-radius:10px;padding:4px;margin-bottom:18px;}
+  .login-tab{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;color:var(--slate-500);}
+  .login-tab.active{background:#fff;color:var(--blue-700);box-shadow:0 1px 3px rgba(0,0,0,.08);}
+  .login-error{color:#ef4444;font-size:13px;margin-top:6px;min-height:16px;}
+  .login-success{color:#0891b2;font-size:13px;margin-top:6px;min-height:16px;}
+  .login-note{font-size:11px;color:var(--slate-400);margin-top:16px;line-height:1.5;}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <h2>Process Tracker</h2>
+    <p class="sub">Sign in to your workspace</p>
+    <div class="login-tabs">
+      <div class="login-tab active" id="tabLogin" data-tab="login">Login</div>
+      <div class="login-tab" id="tabSignup" data-tab="signup">Sign Up</div>
+    </div>
+    <div class="form-col">
+      <input type="email" id="auth_email" placeholder="Email" autocomplete="username" />
+      <input type="password" id="auth_password" placeholder="Password (min 6 characters)" autocomplete="current-password" />
+      <button class="btn-save" id="authSubmitBtn">Login</button>
+      <div class="login-error" id="authError"></div>
+      <div class="login-success" id="authSuccess"></div>
+    </div>
+    <p class="login-note">🔒 Secured with Supabase Authentication — real encrypted password storage and per-user data isolation via Row Level Security.</p>
+  </div>
+</div>
+
+<div class="wrap" id="appScreen" style="display:none;">
+  <div class="header">
+    <div>
+      <h1>Process Tracker</h1>
+      <p>Track your tasks and analyze your progress at a glance — signed in as <strong id="currentUserLabel"></strong></p>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+      <button class="btn-primary" id="newTaskBtn">+ New Task</button>
+      <button class="btn-secondary" id="logoutBtn">Logout</button>
+    </div>
+  </div>
+
+  <div id="loadError" style="display:none;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:10px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;"></div>
+
+  <div class="stat-grid" id="statGrid"></div>
+
+  <div class="charts-grid">
+    <div class="card chart-card">
+      <div class="chart-head">
+        <h3>Progress Over Time</h3>
+        <span id="avgProgressLabel"></span>
+      </div>
+      <div id="trendChart"></div>
+    </div>
+    <div class="card chart-card">
+      <h3>Overdue Tasks by Category</h3>
+      <div id="catChart"></div>
+    </div>
+  </div>
+
+  <div class="card filters">
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search tasks..." />
+    </div>
+    <select id="statusFilter">
+      <option value="all">All Statuses</option>
+      <option value="todo">Not Started</option>
+      <option value="doing">In Progress</option>
+      <option value="done">Completed</option>
+      <option value="late">Overdue</option>
+    </select>
+    <select id="catFilter">
+      <option value="all">All Categories</option>
+    </select>
+  </div>
+
+  <div class="task-list" id="taskList"></div>
+
+  <p class="footer-note">Your data is stored securely in the cloud and synced across any device you log in from.</p>
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="formModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Add New Task</h3>
+      <button class="modal-close" data-close="formModal">✕</button>
+    </div>
+    <div class="form-col">
+      <input type="text" id="f_name" placeholder="Task name" />
+      <textarea id="f_desc" placeholder="Description"></textarea>
+      <div class="form-row">
+        <select id="f_category"></select>
+        <select id="f_status">
+          <option value="todo">Not Started</option>
+          <option value="doing">In Progress</option>
+          <option value="done">Completed</option>
+          <option value="late">Overdue</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <div>
+          <label class="field-label">Start Date</label>
+          <input type="date" id="f_start" style="width:100%" />
+        </div>
+        <div>
+          <label class="field-label">Target Date</label>
+          <input type="date" id="f_due" style="width:100%" />
+        </div>
+      </div>
+      <button class="btn-save" id="saveTaskBtn">Save Task</button>
+    </div>
+  </div>
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3 id="d_title"></h3>
+      <button class="modal-close" data-close="detailModal">✕</button>
+    </div>
+    <p id="d_desc" style="margin:0 0 14px;color:var(--slate-500);font-size:14px;"></p>
+    <div class="form-row" style="margin-bottom:14px;">
+      <select id="d_status">
+        <option value="todo">Not Started</option>
+        <option value="doing">In Progress</option>
+        <option value="done">Completed</option>
+        <option value="late">Overdue</option>
+      </select>
+      <input type="number" id="d_progress" min="0" max="100" style="width:90px" />
+      <span style="align-self:center;font-size:13px;color:var(--slate-400);">% complete</span>
+    </div>
+    <h4 style="margin:0 0 8px;font-size:14px;color:var(--slate-700);">Notes & Updates</h4>
+    <div class="note-list" id="d_notes"></div>
+    <div class="note-add">
+      <input type="text" id="d_noteInput" placeholder="Write a new update..." />
+      <button class="btn-add" id="d_addNoteBtn">Add</button>
+    </div>
+  </div>
+</div>
+
+<script>
+window.addEventListener('error', function(e){
+  console.error(e.message);
+});
+
+// ---- Supabase setup ----
+const SUPABASE_URL = 'https://dskvajgkbeixtemppeil.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_kL2mpDH_rB_peYw-wKWJQw_G-TE1xjE';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const STATUS = {
+  todo:  { label: "Not Started", color: "#94a3b8", bg: "#f1f5f9" },
+  doing: { label: "In Progress", color: "#2563eb", bg: "#dbeafe" },
+  done:  { label: "Completed",   color: "#0891b2", bg: "#cffafe" },
+  late:  { label: "Overdue",     color: "#ef4444", bg: "#fee2e2" },
+};
+const STAT_ICON = {
+  total: {icon:"📊", color:"#2563eb", bg:"#dbeafe", label:"Total Tasks"},
+  done:  {icon:"✅", color:"#0891b2", bg:"#cffafe", label:"Completed"},
+  doing: {icon:"⏱️", color:"#3b82f6", bg:"#dbeafe", label:"In Progress"},
+  late:  {icon:"⚠️", color:"#ef4444", bg:"#fee2e2", label:"Overdue"},
+};
+const CATEGORIES = ["Admin", "Technical", "Marketing", "Clients", "Other"];
+
+let tasks = [];
+let selectedTaskId = null;
+let currentUser = null;
+
+function populateCategorySelects(){
+  const catFilter = document.getElementById('catFilter');
+  const fCategory = document.getElementById('f_category');
+  CATEGORIES.forEach(c => {
+    catFilter.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`);
+    fCategory.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`);
+  });
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+function rowToTask(row){
+  return {
+    id: row.id,
+    name: row.name,
+    desc: row.description || '',
+    category: row.category,
+    status: row.status,
+    progress: row.progress,
+    start: row.start_date || '',
+    due: row.due_date || '',
+    notes: row.notes || [],
+  };
+}
+
+async function fetchTasks(){
+  const { data, error } = await sb.from('tasks').select('*').order('created_at', { ascending: true });
+  if (error){
+    showLoadError('Could not load tasks: ' + error.message);
+    return;
+  }
+  hideLoadError();
+  tasks = (data || []).map(rowToTask);
+  renderAll();
+}
+
+function showLoadError(msg){
+  const el = document.getElementById('loadError');
+  el.style.display = 'block';
+  el.textContent = '⚠ ' + msg;
+}
+function hideLoadError(){
+  document.getElementById('loadError').style.display = 'none';
+}
+
+function getStats(){
+  const total = tasks.length;
+  const done = tasks.filter(t=>t.status==='done').length;
+  const late = tasks.filter(t=>t.status==='late').length;
+  const doing = tasks.filter(t=>t.status==='doing').length;
+  const avgProgress = total ? Math.round(tasks.reduce((s,t)=>s+t.progress,0)/total) : 0;
+  return { total, done, late, doing, avgProgress };
+}
+
+function renderStats(){
+  const s = getStats();
+  const grid = document.getElementById('statGrid');
+  const items = [
+    {k:'total', v:s.total}, {k:'done', v:s.done}, {k:'doing', v:s.doing}, {k:'late', v:s.late}
+  ];
+  grid.innerHTML = items.map(it=>{
+    const cfg = STAT_ICON[it.k];
+    return `<div class="card stat-card">
+      <div class="stat-icon" style="background:${cfg.bg}">${cfg.icon}</div>
+      <div><div class="stat-value" style="color:${cfg.color}">${it.v}</div>
+      <div class="stat-label">${cfg.label}</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('avgProgressLabel').textContent = s.avgProgress + '% avg. completion';
+}
+
+function renderCharts(){
+  const s = getStats();
+  renderTrendChart([Math.min(1,s.done), Math.min(2,s.done), s.done, s.done], ['Week 1','Week 2','Week 3','Week 4']);
+  const catData = CATEGORIES.map(c=>{
+    const catTasks = tasks.filter(t=>t.category===c);
+    return { name:c, overdue: catTasks.filter(t=>t.status==='late').length, total: catTasks.length };
+  }).filter(c=>c.total>0);
+  renderCatChart(catData);
+}
+
+function renderTrendChart(values, labels){
+  const w = 460, h = 200, padL = 30, padB = 26, padT = 14, padR = 14;
+  const maxV = Math.max(1, ...values);
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const stepX = plotW / (values.length - 1 || 1);
+  const points = values.map((v,i)=>{
+    const x = padL + i*stepX;
+    const y = padT + plotH - (v/maxV)*plotH;
+    return [x,y];
+  });
+  const linePath = points.map((p,i)=> (i===0?'M':'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const areaPath = linePath + ` L${points[points.length-1][0].toFixed(1)},${padT+plotH} L${points[0][0].toFixed(1)},${padT+plotH} Z`;
+
+  let gridLines = '';
+  const ySteps = 4;
+  for(let i=0;i<=ySteps;i++){
+    const gy = padT + (plotH/ySteps)*i;
+    const val = Math.round(maxV - (maxV/ySteps)*i);
+    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#e2e8f0" stroke-width="1"/>`;
+    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="10" fill="#64748b" text-anchor="end">${val}</text>`;
+  }
+  const dots = points.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#2563eb"/>`).join('');
+  const xLabels = points.map((p,i)=>`<text x="${p[0].toFixed(1)}" y="${h-6}" font-size="10" fill="#64748b" text-anchor="middle">${labels[i]}</text>`).join('');
+
+  document.getElementById('trendChart').innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;">
+      ${gridLines}
+      <path d="${areaPath}" fill="rgba(37,99,235,0.1)" stroke="none"/>
+      <path d="${linePath}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>`;
+}
+
+function renderCatChart(catData){
+  if (catData.length === 0){
+    document.getElementById('catChart').innerHTML = `<div class="empty" style="padding:16px;">No data yet</div>`;
+    return;
+  }
+  const w = 380, h = 200, padL = 30, padB = 26, padT = 14, padR = 10;
+  const maxV = Math.max(1, ...catData.map(c=>c.total));
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const groupW = plotW / catData.length;
+  const barW = Math.min(22, groupW/3);
+
+  let gridLines = '';
+  const ySteps = 4;
+  for(let i=0;i<=ySteps;i++){
+    const gy = padT + (plotH/ySteps)*i;
+    const val = Math.round(maxV - (maxV/ySteps)*i);
+    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#e2e8f0" stroke-width="1"/>`;
+    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="10" fill="#64748b" text-anchor="end">${val}</text>`;
+  }
+
+  let bars = '', xLabels = '';
+  catData.forEach((c,i)=>{
+    const gx = padL + i*groupW + groupW/2;
+    const overdueH = (c.overdue/maxV)*plotH;
+    const totalH = (c.total/maxV)*plotH;
+    const x1 = gx - barW - 3, x2 = gx + 3;
+    bars += `<rect x="${x1}" y="${padT+plotH-overdueH}" width="${barW}" height="${overdueH}" fill="#ef4444" rx="3"/>`;
+    bars += `<rect x="${x2}" y="${padT+plotH-totalH}" width="${barW}" height="${totalH}" fill="#93c5fd" rx="3"/>`;
+    xLabels += `<text x="${gx}" y="${h-6}" font-size="10" fill="#64748b" text-anchor="middle">${c.name}</text>`;
+  });
+
+  document.getElementById('catChart').innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;">
+      ${gridLines}
+      ${bars}
+      ${xLabels}
+    </svg>
+    <div style="display:flex;gap:14px;justify-content:center;margin-top:8px;font-size:12px;color:#64748b;">
+      <span><span style="display:inline-block;width:10px;height:10px;background:#ef4444;border-radius:2px;margin-right:4px;"></span>Overdue</span>
+      <span><span style="display:inline-block;width:10px;height:10px;background:#93c5fd;border-radius:2px;margin-right:4px;"></span>Total</span>
+    </div>`;
+}
+
+function renderTasks(){
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const statusF = document.getElementById('statusFilter').value;
+  const catF = document.getElementById('catFilter').value;
+
+  const filtered = tasks.filter(t=>{
+    if (statusF !== 'all' && t.status !== statusF) return false;
+    if (catF !== 'all' && t.category !== catF) return false;
+    if (query && !t.name.toLowerCase().includes(query) && !(t.desc||'').toLowerCase().includes(query)) return false;
+    return true;
+  });
+
+  const list = document.getElementById('taskList');
+  if (filtered.length === 0){
+    list.innerHTML = `<div class="card empty">No tasks match this filter</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(t=>{
+    const st = STATUS[t.status] || STATUS.todo;
+    return `<div class="card task-card" data-id="${t.id}">
+      <div class="task-main">
+        <div class="task-top">
+          <span class="task-name">${escapeHtml(t.name)}</span>
+          <span class="badge" style="background:${st.bg};color:${st.color}">${st.label}</span>
+          <span class="badge" style="background:#f1f5f9;color:#64748b">🏷 ${escapeHtml(t.category||'')}</span>
+        </div>
+        <p class="task-desc">${escapeHtml(t.desc)}</p>
+        <div class="task-due">📅 Due: ${t.due || 'Not set'}</div>
+      </div>
+      <div class="task-progress">
+        <div class="task-progress-label"><span>${t.progress}%</span></div>
+        <div class="progress-track"><div class="progress-fill" style="width:${t.progress}%"></div></div>
+      </div>
+    </div>`;
+  }).join('');
+
+  list.querySelectorAll('.task-card').forEach(el=>{
+    el.addEventListener('click', ()=> openDetail(el.dataset.id));
+  });
+}
+
+function renderAll(){
+  renderStats();
+  renderCharts();
+  renderTasks();
+}
+
+function openModal(id){ document.getElementById(id).classList.add('open'); }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('[data-close]').forEach(btn=>{
+  btn.addEventListener('click', ()=> closeModal(btn.dataset.close));
+});
+document.querySelectorAll('.modal-overlay').forEach(ov=>{
+  ov.addEventListener('click', (e)=>{ if(e.target === ov) closeModal(ov.id); });
+});
+
+document.getElementById('newTaskBtn').addEventListener('click', ()=>{
+  document.getElementById('f_name').value = '';
+  document.getElementById('f_name').style.border = '';
+  document.getElementById('f_desc').value = '';
+  document.getElementById('f_category').value = CATEGORIES[0];
+  document.getElementById('f_status').value = 'todo';
+  document.getElementById('f_start').value = '';
+  document.getElementById('f_due').value = '';
+  openModal('formModal');
+});
+
+document.getElementById('saveTaskBtn').addEventListener('click', async ()=>{
+  const btn = document.getElementById('saveTaskBtn');
+  try{
+    const name = document.getElementById('f_name').value.trim();
+    if (!name){
+      document.getElementById('f_name').style.border = '1px solid #ef4444';
+      document.getElementById('f_name').focus();
+      return;
+    }
+    btn.disabled = true; btn.textContent = 'Saving...';
+
+    const { error } = await sb.from('tasks').insert({
+      user_id: currentUser.id,
+      name,
+      description: document.getElementById('f_desc').value,
+      category: document.getElementById('f_category').value,
+      status: document.getElementById('f_status').value,
+      progress: 0,
+      start_date: document.getElementById('f_start').value || null,
+      due_date: document.getElementById('f_due').value || null,
+      notes: [],
+    });
+
+    if (error){
+      alert('Could not save the task: ' + error.message);
+      return;
+    }
+    closeModal('formModal');
+    await fetchTasks();
+  }catch(err){
+    console.error(err);
+    alert('Something went wrong while saving the task: ' + err.message);
+  }finally{
+    btn.disabled = false; btn.textContent = 'Save Task';
+  }
+});
+
+function openDetail(id){
+  selectedTaskId = id;
+  const t = tasks.find(x=>String(x.id)===String(id));
+  if(!t) return;
+  document.getElementById('d_title').textContent = t.name;
+  document.getElementById('d_desc').textContent = t.desc;
+  document.getElementById('d_status').value = t.status;
+  document.getElementById('d_progress').value = t.progress;
+  renderNotes(t);
+  openModal('detailModal');
+}
+
+function renderNotes(t){
+  const box = document.getElementById('d_notes');
+  if (!t.notes || t.notes.length === 0){
+    box.innerHTML = `<span style="font-size:13px;color:var(--slate-400);">No notes yet</span>`;
+    return;
+  }
+  box.innerHTML = t.notes.map(n=>`<div class="note-item">${escapeHtml(n)}</div>`).join('');
+}
+
+document.getElementById('d_status').addEventListener('change', async (e)=>{
+  const { error } = await sb.from('tasks').update({ status: e.target.value }).eq('id', selectedTaskId);
+  if (error){ alert('Could not update status: ' + error.message); return; }
+  await fetchTasks();
+});
+document.getElementById('d_progress').addEventListener('change', async (e)=>{
+  const val = Math.max(0, Math.min(100, Number(e.target.value) || 0));
+  const { error } = await sb.from('tasks').update({ progress: val }).eq('id', selectedTaskId);
+  if (error){ alert('Could not update progress: ' + error.message); return; }
+  await fetchTasks();
+});
+document.getElementById('d_addNoteBtn').addEventListener('click', addNote);
+document.getElementById('d_noteInput').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') addNote(); });
+
+async function addNote(){
+  const input = document.getElementById('d_noteInput');
+  const text = input.value.trim();
+  if (!text) return;
+  const t = tasks.find(x=>String(x.id)===String(selectedTaskId));
+  if (!t) return;
+  const dateStr = new Date().toLocaleDateString('en-US');
+  const newNotes = [...(t.notes||[]), `${dateStr}: ${text}`];
+  const { error } = await sb.from('tasks').update({ notes: newNotes }).eq('id', selectedTaskId);
+  if (error){ alert('Could not add note: ' + error.message); return; }
+  input.value = '';
+  await fetchTasks();
+  renderNotes(tasks.find(x=>String(x.id)===String(selectedTaskId)));
+}
+
+document.getElementById('searchInput').addEventListener('input', renderTasks);
+document.getElementById('statusFilter').addEventListener('change', renderTasks);
+document.getElementById('catFilter').addEventListener('change', renderTasks);
+
+let authMode = 'login';
+
+function switchAuthTab(mode){
+  authMode = mode;
+  document.getElementById('tabLogin').classList.toggle('active', mode==='login');
+  document.getElementById('tabSignup').classList.toggle('active', mode==='signup');
+  document.getElementById('authSubmitBtn').textContent = mode==='login' ? 'Login' : 'Create Account';
+  document.getElementById('authError').textContent = '';
+  document.getElementById('authSuccess').textContent = '';
+}
+
+async function handleAuthSubmit(){
+  const email = document.getElementById('auth_email').value.trim();
+  const password = document.getElementById('auth_password').value;
+  const errEl = document.getElementById('authError');
+  const okEl = document.getElementById('authSuccess');
+  const btn = document.getElementById('authSubmitBtn');
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (!email || !password){
+    errEl.textContent = 'Please enter an email and password.';
+    return;
+  }
+
+  btn.disabled = true;
+  try{
+    if (authMode === 'signup'){
+      const { data, error } = await sb.auth.signUp({ email, password });
+      if (error){ errEl.textContent = error.message; return; }
+      if (data.session){
+        onLoggedIn(data.session.user);
+      } else {
+        okEl.textContent = 'Account created! Check your email to confirm, then log in.';
+        switchAuthTab('login');
+      }
+    } else {
+      const { data, error } = await sb.auth.signInWithPassword({ email, password });
+      if (error){ errEl.textContent = error.message; return; }
+      onLoggedIn(data.user);
+    }
+  }catch(e){
+    errEl.textContent = 'Something went wrong: ' + e.message;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+async function onLoggedIn(user){
+  currentUser = user;
+  document.getElementById('currentUserLabel').textContent = user.email;
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appScreen').style.display = 'block';
+  document.getElementById('auth_email').value = '';
+  document.getElementById('auth_password').value = '';
+  await fetchTasks();
+}
+
+async function logOut(){
+  await sb.auth.signOut();
+  currentUser = null;
+  tasks = [];
+  document.getElementById('appScreen').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('authError').textContent = '';
+  document.getElementById('authSuccess').textContent = '';
+}
+
+document.getElementById('tabLogin').addEventListener('click', ()=> switchAuthTab('login'));
+document.getElementById('tabSignup').addEventListener('click', ()=> switchAuthTab('signup'));
+document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
+document.getElementById('auth_password').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') handleAuthSubmit(); });
+document.getElementById('logoutBtn').addEventListener('click', logOut);
+
+populateCategorySelects();
+document.getElementById('f_category').value = CATEGORIES[0];
+
+sb.auth.getSession().then(({ data })=>{
+  if (data.session){
+    onLoggedIn(data.session.user);
+  }
+});
+</script>
+</body>
+</html>
