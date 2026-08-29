@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Process Tracker</title>
+<title>TaskNote</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
@@ -99,6 +99,27 @@
   .reminder-row .rname{font-weight:700;color:#7c2d12;}
   .reminder-row .rdue{color:#9a3412;white-space:nowrap;}
 
+  .top3-card{background:linear-gradient(135deg,#fef2f2,#fff);border:2px solid #fca5a5;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+  .top3-card h3{margin:0 0 10px;font-size:14px;color:#b91c1c;}
+  .top3-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #fecaca;font-size:14px;cursor:pointer;}
+  .top3-row:first-of-type{border-top:none;}
+  .top3-num{width:24px;height:24px;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+  .top3-row .t3name{font-weight:700;color:#7f1d1d;flex:1;}
+  .top3-empty{font-size:13px;color:#b91c1c;opacity:.7;}
+
+  .habits-card{background:#f0fdf4;border:1px solid #86efac;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
+  .habits-card h3{margin:0 0 12px;font-size:14px;color:#166534;}
+  .habit-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-top:1px solid #bbf7d0;font-size:14px;}
+  .habit-row:first-of-type{border-top:none;}
+  .habit-check{width:22px;height:22px;border-radius:6px;border:2px solid #22c55e;flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;color:#fff;background:#fff;}
+  .habit-check.done{background:#22c55e;}
+  .habit-name{flex:1;color:#14532d;}
+  .habit-streak{font-size:11px;color:#16a34a;font-weight:700;}
+  .habit-del{background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;opacity:.6;}
+  .habit-del:hover{opacity:1;}
+  .habit-add{display:flex;gap:8px;margin-top:10px;}
+  .habit-add input{flex:1;}
+
   .view-toggle{display:flex;gap:4px;background:var(--slate-100);border-radius:10px;padding:4px;margin-inline-start:auto;}
   .view-toggle-btn{border:none;background:transparent;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;color:var(--slate-500);cursor:pointer;}
   .view-toggle-btn.active{background:#fff;color:var(--blue-700);box-shadow:0 1px 3px rgba(0,0,0,.08);}
@@ -133,76 +154,80 @@
 </head>
 <body>
 
+<button id="langToggleBtn" style="position:fixed;top:14px;inset-inline-end:14px;z-index:100;background:#fff;border:1px solid var(--blue-200);border-radius:10px;padding:8px 14px;font-weight:700;font-size:13px;color:var(--blue-700);cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.08);">🌐 العربية</button>
+
 <div id="loginScreen">
   <div class="login-card">
-    <h2>Process Tracker</h2>
-    <p class="sub">Sign in to your workspace</p>
+    <h2 id="appTitleLogin">TaskNote</h2>
+    <p class="sub" data-i18n="loginSub">Sign in to your workspace</p>
     <div class="login-tabs">
-      <div class="login-tab active" id="tabLogin" data-tab="login">Login</div>
-      <div class="login-tab" id="tabSignup" data-tab="signup">Sign Up</div>
+      <div class="login-tab active" id="tabLogin" data-tab="login" data-i18n="login">Login</div>
+      <div class="login-tab" id="tabSignup" data-tab="signup" data-i18n="signup">Sign Up</div>
     </div>
     <div class="form-col">
-      <input type="email" id="auth_email" placeholder="Email" autocomplete="username" />
-      <input type="password" id="auth_password" placeholder="Password (min 6 characters)" autocomplete="current-password" />
-      <button class="btn-save" id="authSubmitBtn">Login</button>
+      <input type="email" id="auth_email" placeholder="Email" data-i18n-placeholder="email" autocomplete="username" />
+      <input type="password" id="auth_password" placeholder="Password (min 6 characters)" data-i18n-placeholder="passwordMin" autocomplete="current-password" />
+      <button class="btn-save" id="authSubmitBtn" data-i18n="login">Login</button>
       <div class="login-error" id="authError"></div>
       <div class="login-success" id="authSuccess"></div>
-      <button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:var(--blue-600);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;text-align:center;">Forgot password?</button>
+      <button type="button" id="forgotPasswordBtn" data-i18n="forgotPassword" style="background:none;border:none;color:var(--blue-600);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;text-align:center;">Forgot password?</button>
     </div>
-    <p class="login-note">🔒 Secured with Supabase Authentication — real encrypted password storage and per-user data isolation via Row Level Security.</p>
+    <p class="login-note" data-i18n="loginNote">🔒 Secured with Supabase Authentication — real encrypted password storage and per-user data isolation via Row Level Security.</p>
   </div>
 </div>
 
 <div class="wrap" id="appScreen" style="display:none;">
   <div class="header">
     <div>
-      <h1>Process Tracker</h1>
-      <p>Track your tasks and analyze your progress at a glance — signed in as <strong id="currentUserLabel"></strong></p>
+      <h1 id="appTitleMain">TaskNote</h1>
+      <p><span data-i18n="headerSub">Track your tasks and analyze your progress at a glance</span> — <span data-i18n="signedInAs">signed in as</span> <strong id="currentUserLabel"></strong></p>
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-      <button class="btn-primary" id="newTaskBtn">+ New Task</button>
-      <button class="btn-secondary" id="changePasswordBtn">🔑 Change Password</button>
-      <button class="btn-secondary" id="logoutBtn">Logout</button>
+      <button class="btn-primary" id="newTaskBtn" data-i18n="newTask">+ New Task</button>
+      <button class="btn-secondary" id="changePasswordBtn" data-i18n="changePassword">🔑 Change Password</button>
+      <button class="btn-secondary" id="logoutBtn" data-i18n="logout">Logout</button>
     </div>
   </div>
 
   <div id="loadError" style="display:none;background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;padding:10px 16px;border-radius:10px;font-size:13px;margin-bottom:16px;"></div>
   <div id="remindersBanner" style="display:none;"></div>
+  <div id="top3Banner" style="display:none;"></div>
+  <div id="habitsBanner"></div>
 
   <div class="stat-grid" id="statGrid"></div>
 
   <div class="charts-grid">
     <div class="card chart-card">
       <div class="chart-head">
-        <h3>Progress Over Time</h3>
+        <h3 data-i18n="progressOverTime">Progress Over Time</h3>
         <span id="avgProgressLabel"></span>
       </div>
       <div id="trendChart"></div>
     </div>
     <div class="card chart-card">
-      <h3>Overdue Tasks by Category</h3>
+      <h3 data-i18n="overdueByCategory">Overdue Tasks by Category</h3>
       <div id="catChart"></div>
     </div>
   </div>
 
   <div class="card filters">
     <div class="search-wrap">
-      <input type="text" id="searchInput" placeholder="Search tasks..." />
+      <input type="text" id="searchInput" placeholder="Search tasks..." data-i18n-placeholder="searchTasks" />
     </div>
     <select id="statusFilter">
-      <option value="all">All Statuses</option>
-      <option value="todo">Not Started</option>
-      <option value="doing">In Progress</option>
-      <option value="done">Completed</option>
-      <option value="late">Overdue</option>
+      <option value="all" data-i18n="allStatuses">All Statuses</option>
+      <option value="todo" data-i18n="notStarted">Not Started</option>
+      <option value="doing" data-i18n="inProgress">In Progress</option>
+      <option value="done" data-i18n="completed">Completed</option>
+      <option value="late" data-i18n="overdue">Overdue</option>
     </select>
     <select id="catFilter">
-      <option value="all">All Categories</option>
+      <option value="all" data-i18n="allCategories">All Categories</option>
     </select>
     <div class="view-toggle">
-      <button class="view-toggle-btn active" id="viewListBtn">📋 List</button>
-      <button class="view-toggle-btn" id="viewCalendarBtn">📅 Calendar</button>
-      <button class="view-toggle-btn" id="viewReviewBtn">📊 Monthly Review</button>
+      <button class="view-toggle-btn active" id="viewListBtn" data-i18n="viewList">📋 List</button>
+      <button class="view-toggle-btn" id="viewCalendarBtn" data-i18n="viewCalendar">📅 Calendar</button>
+      <button class="view-toggle-btn" id="viewReviewBtn" data-i18n="viewReview">📊 Monthly Review</button>
     </div>
   </div>
 
@@ -210,9 +235,9 @@
 
   <div class="card" id="calendarView" style="display:none;padding:20px;">
     <div class="cal-header">
-      <button class="btn-secondary" id="calPrevBtn">← Prev</button>
+      <button class="btn-secondary" id="calPrevBtn" data-i18n="prev">← Prev</button>
       <h3 id="calMonthLabel"></h3>
-      <button class="btn-secondary" id="calNextBtn">Next →</button>
+      <button class="btn-secondary" id="calNextBtn" data-i18n="next">Next →</button>
     </div>
     <div class="cal-grid" id="calGrid"></div>
   </div>
@@ -220,75 +245,75 @@
   <div id="reviewView" style="display:none;">
     <div class="card" style="padding:20px;margin-bottom:16px;">
       <div class="cal-header">
-        <button class="btn-secondary" id="revPrevBtn">← Prev</button>
+        <button class="btn-secondary" id="revPrevBtn" data-i18n="prev">← Prev</button>
         <h3 id="revMonthLabel"></h3>
-        <button class="btn-secondary" id="revNextBtn">Next →</button>
+        <button class="btn-secondary" id="revNextBtn" data-i18n="next">Next →</button>
       </div>
       <div class="stat-grid" id="revStatGrid" style="margin-bottom:0;"></div>
     </div>
 
     <div class="card" style="padding:20px;margin-bottom:16px;">
-      <h3 style="margin:0 0 12px;font-size:15px;color:var(--slate-700);">✅ Completed this month</h3>
+      <h3 style="margin:0 0 12px;font-size:15px;color:var(--slate-700);" data-i18n="completedThisMonth">✅ Completed this month</h3>
       <div id="revDoneList" class="task-list"></div>
     </div>
 
     <div class="card" style="padding:20px;margin-bottom:16px;">
-      <h3 style="margin:0 0 12px;font-size:15px;color:var(--slate-700);">⚠ Not done — carry over as action items</h3>
+      <h3 style="margin:0 0 12px;font-size:15px;color:var(--slate-700);" data-i18n="notDoneCarryOver">⚠ Not done — carry over as action items</h3>
       <div id="revPendingList" class="task-list"></div>
     </div>
 
     <div class="card" style="padding:20px;">
-      <h3 style="margin:0 0 8px;font-size:15px;color:var(--slate-700);">📝 Notes for next month</h3>
-      <p style="margin:0 0 10px;font-size:12px;color:var(--slate-400);">Saved on this device only.</p>
+      <h3 style="margin:0 0 8px;font-size:15px;color:var(--slate-700);" data-i18n="notesForNextMonth">📝 Notes for next month</h3>
+      <p style="margin:0 0 10px;font-size:12px;color:var(--slate-400);" data-i18n="savedOnDevice">Saved on this device only.</p>
       <textarea id="revNotes" style="min-height:100px;"></textarea>
-      <button class="btn-save" id="revSaveNotesBtn" style="margin-top:10px;">Save Notes</button>
-      <span id="revSavedMsg" style="margin-inline-start:10px;font-size:12px;color:var(--cyan-600);display:none;">Saved ✓</span>
+      <button class="btn-save" id="revSaveNotesBtn" style="margin-top:10px;" data-i18n="saveNotes">Save Notes</button>
+      <span id="revSavedMsg" style="margin-inline-start:10px;font-size:12px;color:var(--cyan-600);display:none;" data-i18n="saved">Saved ✓</span>
     </div>
   </div>
 
-  <p class="footer-note">Your data is stored securely in the cloud and synced across any device you log in from.</p>
+  <p class="footer-note" data-i18n="footerNote">Your data is stored securely in the cloud and synced across any device you log in from.</p>
 </div>
 
 <!-- Add Task Modal -->
 <div class="modal-overlay" id="formModal">
   <div class="modal">
     <div class="modal-head">
-      <h3>Add New Task</h3>
+      <h3 id="formModalTitle" data-i18n="addNewTask">Add New Task</h3>
       <button class="modal-close" data-close="formModal">✕</button>
     </div>
     <div class="form-col">
-      <input type="text" id="f_name" placeholder="Task name" />
-      <textarea id="f_desc" placeholder="Description"></textarea>
+      <input type="text" id="f_name" placeholder="Task name" data-i18n-placeholder="taskName" />
+      <textarea id="f_desc" placeholder="Description" data-i18n-placeholder="description"></textarea>
       <div class="form-row">
         <select id="f_category"></select>
         <select id="f_status">
-          <option value="todo">Not Started</option>
-          <option value="doing">In Progress</option>
-          <option value="done">Completed</option>
-          <option value="late">Overdue</option>
+          <option value="todo" data-i18n="notStarted">Not Started</option>
+          <option value="doing" data-i18n="inProgress">In Progress</option>
+          <option value="done" data-i18n="completed">Completed</option>
+          <option value="late" data-i18n="overdue">Overdue</option>
         </select>
       </div>
       <div class="form-row">
         <div>
-          <label class="field-label">Priority</label>
+          <label class="field-label" data-i18n="priority">Priority</label>
           <select id="f_priority" style="width:100%">
-            <option value="low">🔵 Low</option>
-            <option value="medium" selected>🟡 Medium</option>
-            <option value="high">🔴 High</option>
+            <option value="low" data-i18n="priorityLow">🔵 Low</option>
+            <option value="medium" selected data-i18n="priorityMedium">🟡 Medium</option>
+            <option value="high" data-i18n="priorityHigh">🔴 High</option>
           </select>
         </div>
       </div>
       <div class="form-row">
         <div>
-          <label class="field-label">Start Date</label>
+          <label class="field-label" data-i18n="startDate">Start Date</label>
           <input type="date" id="f_start" style="width:100%" />
         </div>
         <div>
-          <label class="field-label">Target Date</label>
+          <label class="field-label" data-i18n="targetDate">Target Date</label>
           <input type="date" id="f_due" style="width:100%" />
         </div>
       </div>
-      <button class="btn-save" id="saveTaskBtn">Save Task</button>
+      <button class="btn-save" id="saveTaskBtn" data-i18n="saveTask">Save Task</button>
     </div>
   </div>
 </div>
@@ -303,21 +328,21 @@
     <p id="d_desc" style="margin:0 0 14px;color:var(--slate-500);font-size:14px;"></p>
     <div class="form-row" style="margin-bottom:10px;">
       <select id="d_status">
-        <option value="todo">Not Started</option>
-        <option value="doing">In Progress</option>
-        <option value="done">Completed</option>
-        <option value="late">Overdue</option>
+        <option value="todo" data-i18n="notStarted">Not Started</option>
+        <option value="doing" data-i18n="inProgress">In Progress</option>
+        <option value="done" data-i18n="completed">Completed</option>
+        <option value="late" data-i18n="overdue">Overdue</option>
       </select>
       <input type="number" id="d_progress" min="0" max="100" style="width:90px" />
-      <span style="align-self:center;font-size:13px;color:var(--slate-400);">% complete</span>
+      <span style="align-self:center;font-size:13px;color:var(--slate-400);" data-i18n="percentComplete">% complete</span>
     </div>
     <div class="form-row" style="margin-bottom:14px;">
       <div>
-        <label class="field-label">Priority</label>
+        <label class="field-label" data-i18n="priority">Priority</label>
         <select id="d_priority" style="width:100%">
-          <option value="low">🔵 Low</option>
-          <option value="medium">🟡 Medium</option>
-          <option value="high">🔴 High</option>
+          <option value="low" data-i18n="priorityLow">🔵 Low</option>
+          <option value="medium" data-i18n="priorityMedium">🟡 Medium</option>
+          <option value="high" data-i18n="priorityHigh">🔴 High</option>
         </select>
       </div>
     </div>
@@ -362,23 +387,167 @@ const SUPABASE_ANON_KEY = 'sb_publishable_kL2mpDH_rB_peYw-wKWJQw_G-TE1xjE';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const STATUS = {
-  todo:  { label: "Not Started", color: "#94a3b8", bg: "#f1f5f9" },
-  doing: { label: "In Progress", color: "#2563eb", bg: "#dbeafe" },
-  done:  { label: "Completed",   color: "#0891b2", bg: "#cffafe" },
-  late:  { label: "Overdue",     color: "#ef4444", bg: "#fee2e2" },
+  todo:  { label: {en:"Not Started", ar:"لسه هتبدأ"}, color: "#94a3b8", bg: "#f1f5f9" },
+  doing: { label: {en:"In Progress", ar:"جاري التنفيذ"}, color: "#2563eb", bg: "#dbeafe" },
+  done:  { label: {en:"Completed",   ar:"مكتملة"}, color: "#0891b2", bg: "#cffafe" },
+  late:  { label: {en:"Overdue",     ar:"متأخرة"}, color: "#ef4444", bg: "#fee2e2" },
 };
 const PRIORITY = {
-  low:    { label: "Low",    color: "#0891b2", bg: "#cffafe", icon: "🔵" },
-  medium: { label: "Medium", color: "#d97706", bg: "#fef3c7", icon: "🟡" },
-  high:   { label: "High",   color: "#ef4444", bg: "#fee2e2", icon: "🔴" },
+  low:    { label: {en:"Low",    ar:"منخفضة"}, color: "#0891b2", bg: "#cffafe", icon: "🔵" },
+  medium: { label: {en:"Medium", ar:"متوسطة"}, color: "#d97706", bg: "#fef3c7", icon: "🟡" },
+  high:   { label: {en:"High",   ar:"عالية"}, color: "#ef4444", bg: "#fee2e2", icon: "🔴" },
 };
 const STAT_ICON = {
-  total: {icon:"📊", color:"#2563eb", bg:"#dbeafe", label:"Total Tasks"},
-  done:  {icon:"✅", color:"#0891b2", bg:"#cffafe", label:"Completed"},
-  doing: {icon:"⏱️", color:"#3b82f6", bg:"#dbeafe", label:"In Progress"},
-  late:  {icon:"⚠️", color:"#ef4444", bg:"#fee2e2", label:"Overdue"},
+  total: {icon:"📊", color:"#2563eb", bg:"#dbeafe", label:{en:"Total Tasks", ar:"إجمالي المهام"}},
+  done:  {icon:"✅", color:"#0891b2", bg:"#cffafe", label:{en:"Completed", ar:"مكتملة"}},
+  doing: {icon:"⏱️", color:"#3b82f6", bg:"#dbeafe", label:{en:"In Progress", ar:"جاري التنفيذ"}},
+  late:  {icon:"⚠️", color:"#ef4444", bg:"#fee2e2", label:{en:"Overdue", ar:"متأخرة"}},
 };
 const CATEGORIES = ["Admin", "Technical", "Marketing", "Clients", "Other"];
+const CATEGORY_LABEL = {
+  Admin: {en:"Admin", ar:"إداري"},
+  Technical: {en:"Technical", ar:"تقني"},
+  Marketing: {en:"Marketing", ar:"تسويق"},
+  Clients: {en:"Clients", ar:"عملاء"},
+  Other: {en:"Other", ar:"أخرى"},
+};
+
+// ---- i18n ----
+let currentLang = localStorage.getItem('tasknote-lang') || 'en';
+
+const TRANSLATIONS = {
+  en: {
+    loginSub: "Sign in to your workspace",
+    login: "Login",
+    signup: "Sign Up",
+    email: "Email",
+    passwordMin: "Password (min 6 characters)",
+    forgotPassword: "Forgot password?",
+    loginNote: "🔒 Secured with Supabase Authentication — real encrypted password storage and per-user data isolation via Row Level Security.",
+    headerSub: "Track your tasks and analyze your progress at a glance",
+    signedInAs: "signed in as",
+    newTask: "+ New Task",
+    changePassword: "🔑 Change Password",
+    logout: "Logout",
+    progressOverTime: "Progress Over Time",
+    overdueByCategory: "Overdue Tasks by Category",
+    searchTasks: "Search tasks...",
+    allStatuses: "All Statuses",
+    notStarted: "Not Started",
+    inProgress: "In Progress",
+    completed: "Completed",
+    overdue: "Overdue",
+    allCategories: "All Categories",
+    viewList: "📋 List",
+    viewCalendar: "📅 Calendar",
+    viewReview: "📊 Monthly Review",
+    prev: "← Prev",
+    next: "Next →",
+    completedThisMonth: "✅ Completed this month",
+    notDoneCarryOver: "⚠ Not done — carry over as action items",
+    notesForNextMonth: "📝 Notes for next month",
+    savedOnDevice: "Saved on this device only.",
+    saveNotes: "Save Notes",
+    saved: "Saved ✓",
+    footerNote: "Your data is stored securely in the cloud and synced across any device you log in from.",
+    addNewTask: "Add New Task",
+    taskName: "Task name",
+    description: "Description",
+    priority: "Priority",
+    priorityLow: "🔵 Low",
+    priorityMedium: "🟡 Medium",
+    priorityHigh: "🔴 High",
+    startDate: "Start Date",
+    targetDate: "Target Date",
+    saveTask: "Save Task",
+    percentComplete: "% complete",
+    top3Title: "🎯 Top 3 Focus — do these first today",
+    top3Empty: "No high-priority tasks right now — nice and clear!",
+    habitsTitle: "🔁 Daily Habits",
+    habitAddPlaceholder: "Add a daily habit (e.g. Walk, Read, Study English)...",
+    habitAdd: "Add",
+    remindersTitle: "task(s) need your attention",
+  },
+  ar: {
+    loginSub: "سجّل دخولك لمساحة عملك",
+    login: "تسجيل الدخول",
+    signup: "حساب جديد",
+    email: "الإيميل",
+    passwordMin: "الباسورد (6 حروف على الأقل)",
+    forgotPassword: "نسيت الباسورد؟",
+    loginNote: "🔒 محمي بنظام Supabase Authentication — تشفير حقيقي للباسورد وفصل بيانات كل مستخدم عن التاني.",
+    headerSub: "تابع مهامك وحلل تقدمك بنظرة واحدة",
+    signedInAs: "مسجل دخول باسم",
+    newTask: "+ مهمة جديدة",
+    changePassword: "🔑 تغيير الباسورد",
+    logout: "تسجيل الخروج",
+    progressOverTime: "الإنجاز عبر الوقت",
+    overdueByCategory: "المهام المتأخرة حسب الفئة",
+    searchTasks: "دور على مهمة...",
+    allStatuses: "كل الحالات",
+    notStarted: "لسه هتبدأ",
+    inProgress: "جاري التنفيذ",
+    completed: "مكتملة",
+    overdue: "متأخرة",
+    allCategories: "كل الفئات",
+    viewList: "📋 قائمة",
+    viewCalendar: "📅 كالندر",
+    viewReview: "📊 مراجعة شهرية",
+    prev: "→ السابق",
+    next: "التالي ←",
+    completedThisMonth: "✅ اللي خلصته الشهر ده",
+    notDoneCarryOver: "⚠ اللي متعملش — رحّلها كأكشن",
+    notesForNextMonth: "📝 ملاحظات للشهر الجاي",
+    savedOnDevice: "متحفوظة على الجهاز ده بس.",
+    saveNotes: "حفظ الملاحظات",
+    saved: "اتحفظت ✓",
+    footerNote: "بياناتك متخزنة بأمان في السحابة وتتزامن من أي جهاز تسجل دخول منه.",
+    addNewTask: "إضافة مهمة جديدة",
+    taskName: "اسم المهمة",
+    description: "الوصف",
+    priority: "الأولوية",
+    priorityLow: "🔵 منخفضة",
+    priorityMedium: "🟡 متوسطة",
+    priorityHigh: "🔴 عالية",
+    startDate: "تاريخ البدء",
+    targetDate: "الموعد المستهدف",
+    saveTask: "حفظ المهمة",
+    percentComplete: "% الإنجاز",
+    top3Title: "🎯 أهم 3 مهام — ابدأ بيهم النهاردة",
+    top3Empty: "مفيش مهام عالية الأولوية دلوقتي — تمام كده!",
+    habitsTitle: "🔁 عادات يومية",
+    habitAddPlaceholder: "ضيف عادة يومية (زي مشي، قراية، إنجليزي)...",
+    habitAdd: "إضافة",
+    remindersTitle: "مهمة محتاجة انتباهك",
+  }
+};
+
+function t(key){
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.en[key] || key;
+}
+
+function applyLanguage(lang){
+  currentLang = lang;
+  localStorage.setItem('tasknote-lang', lang);
+  document.documentElement.lang = lang;
+  document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+  document.getElementById('langToggleBtn').textContent = lang === 'ar' ? '🌐 English' : '🌐 العربية';
+
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    el.textContent = t(el.dataset.i18n);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el=>{
+    el.placeholder = t(el.dataset.i18nPlaceholder);
+  });
+
+  // Re-render everything that builds English text dynamically in JS
+  if (typeof renderAll === 'function' && currentUser) renderAll();
+  if (typeof renderHabits === 'function' && currentUser) renderHabits();
+}
+
+document.getElementById('langToggleBtn').addEventListener('click', ()=>{
+  applyLanguage(currentLang === 'ar' ? 'en' : 'ar');
+});
 
 let tasks = [];
 let selectedTaskId = null;
@@ -387,9 +556,13 @@ let currentUser = null;
 function populateCategorySelects(){
   const catFilter = document.getElementById('catFilter');
   const fCategory = document.getElementById('f_category');
+  // Remove previously injected category options (keep the "All Categories" default option in catFilter)
+  catFilter.querySelectorAll('option[data-cat-option]').forEach(o=>o.remove());
+  fCategory.querySelectorAll('option[data-cat-option]').forEach(o=>o.remove());
   CATEGORIES.forEach(c => {
-    catFilter.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`);
-    fCategory.insertAdjacentHTML('beforeend', `<option value="${c}">${c}</option>`);
+    const label = (CATEGORY_LABEL[c] && CATEGORY_LABEL[c][currentLang]) || c;
+    catFilter.insertAdjacentHTML('beforeend', `<option value="${c}" data-cat-option>${label}</option>`);
+    fCategory.insertAdjacentHTML('beforeend', `<option value="${c}" data-cat-option>${label}</option>`);
   });
 }
 
@@ -454,10 +627,10 @@ function renderStats(){
     return `<div class="card stat-card">
       <div class="stat-icon" style="background:${cfg.bg}">${cfg.icon}</div>
       <div><div class="stat-value" style="color:${cfg.color}">${it.v}</div>
-      <div class="stat-label">${cfg.label}</div></div>
+      <div class="stat-label">${cfg.label[currentLang]}</div></div>
     </div>`;
   }).join('');
-  document.getElementById('avgProgressLabel').textContent = s.avgProgress + '% avg. completion';
+  document.getElementById('avgProgressLabel').textContent = s.avgProgress + '% ' + (currentLang==='ar' ? 'متوسط الإنجاز' : 'avg. completion');
 }
 
 function renderCharts(){
@@ -574,6 +747,7 @@ function renderTasks(){
 function renderAll(){
   renderStats();
   renderReminders();
+  renderTop3();
   renderCharts();
   renderTasks();
   renderCalendar();
@@ -595,9 +769,14 @@ function renderReminders(){
     return;
   }
 
+  const isAr = currentLang === 'ar';
   const rows = dueSoon.map(t=>{
     const isOverdue = t.due < todayStr;
-    const label = isOverdue ? `⚠ Overdue (${t.due})` : (t.due === todayStr ? '📌 Due today' : `⏳ Due ${t.due}`);
+    const label = isOverdue
+      ? (isAr ? `⚠ متأخرة (${t.due})` : `⚠ Overdue (${t.due})`)
+      : (t.due === todayStr
+          ? (isAr ? '📌 مستحقة النهاردة' : '📌 Due today')
+          : (isAr ? `⏳ مستحقة ${t.due}` : `⏳ Due ${t.due}`));
     const pr = PRIORITY[t.priority] || PRIORITY.medium;
     return `<div class="reminder-row" data-id="${t.id}">
       <span class="rname">${pr.icon} ${escapeHtml(t.name)}</span>
@@ -607,7 +786,7 @@ function renderReminders(){
 
   banner.style.display = 'block';
   banner.innerHTML = `<div class="reminders-card">
-    <h3>🔔 ${dueSoon.length} task${dueSoon.length>1?'s':''} need${dueSoon.length>1?'':'s'} your attention</h3>
+    <h3>🔔 ${dueSoon.length} ${t('remindersTitle')}</h3>
     ${rows}
   </div>`;
 
@@ -616,10 +795,171 @@ function renderReminders(){
   });
 }
 
+// ---- Top 3 Focus ----
+function renderTop3(){
+  const banner = document.getElementById('top3Banner');
+  const priorityRank = { high: 0, medium: 1, low: 2 };
+  const candidates = tasks
+    .filter(t => t.status !== 'done')
+    .sort((a,b)=>{
+      const pa = priorityRank[a.priority] ?? 1;
+      const pb = priorityRank[b.priority] ?? 1;
+      if (pa !== pb) return pa - pb;
+      if (a.due && b.due) return a.due < b.due ? -1 : 1;
+      if (a.due) return -1;
+      if (b.due) return 1;
+      return 0;
+    })
+    .slice(0, 3);
+
+  banner.style.display = 'block';
+  if (candidates.length === 0){
+    banner.innerHTML = `<div class="top3-card">
+      <h3>${t('top3Title')}</h3>
+      <div class="top3-empty">${t('top3Empty')}</div>
+    </div>`;
+    return;
+  }
+
+  const rows = candidates.map((task, i)=>{
+    const dueLabel = task.due ? (' · ' + task.due) : '';
+    return `<div class="top3-row" data-id="${task.id}">
+      <div class="top3-num">${i+1}</div>
+      <span class="t3name">${escapeHtml(task.name)}${dueLabel}</span>
+    </div>`;
+  }).join('');
+
+  banner.innerHTML = `<div class="top3-card">
+    <h3>${t('top3Title')}</h3>
+    ${rows}
+  </div>`;
+
+  banner.querySelectorAll('.top3-row').forEach(el=>{
+    el.addEventListener('click', ()=> openDetail(el.dataset.id));
+  });
+}
+
+// ---- Daily Habits ----
+let habits = [];
+
+async function fetchHabits(){
+  const { data, error } = await sb.from('habits').select('*').order('created_at', { ascending: true });
+  if (error){
+    console.warn('Could not load habits:', error.message);
+    habits = [];
+    document.getElementById('habitsBanner').innerHTML = '';
+    return;
+  }
+  habits = (data || []).map(row => ({
+    id: row.id,
+    name: row.name,
+    completedDates: row.completed_dates || [],
+  }));
+  renderHabits();
+}
+
+function todayDateStr(){
+  return new Date().toISOString().slice(0,10);
+}
+
+function habitStreak(h){
+  // count consecutive days up to and including today that are marked done
+  let streak = 0;
+  let d = new Date();
+  while (true){
+    const ds = d.toISOString().slice(0,10);
+    if (h.completedDates.includes(ds)){
+      streak++;
+      d.setDate(d.getDate() - 1);
+    } else {
+      break;
+    }
+  }
+  return streak;
+}
+
+function renderHabits(){
+  const banner = document.getElementById('habitsBanner');
+  const today = todayDateStr();
+
+  const rows = habits.map(h=>{
+    const done = h.completedDates.includes(today);
+    const streak = habitStreak(h);
+    const streakLabel = streak > 0 ? `🔥 ${streak}` : '';
+    return `<div class="habit-row">
+      <div class="habit-check ${done?'done':''}" data-id="${h.id}">${done?'✓':''}</div>
+      <span class="habit-name">${escapeHtml(h.name)}</span>
+      <span class="habit-streak">${streakLabel}</span>
+      <button class="habit-del" data-id="${h.id}">✕</button>
+    </div>`;
+  }).join('');
+
+  const emptyMsg = currentLang === 'ar' ? 'لسه معملتش أي عادة يومية.' : 'No daily habits yet.';
+
+  banner.innerHTML = `<div class="habits-card">
+    <h3>${t('habitsTitle')}</h3>
+    ${habits.length ? rows : `<div style="font-size:13px;color:#166534;opacity:.7;">${emptyMsg}</div>`}
+    <div class="habit-add">
+      <input type="text" id="newHabitInput" placeholder="${t('habitAddPlaceholder')}" />
+      <button class="btn-add" id="addHabitBtn">${t('habitAdd')}</button>
+    </div>
+  </div>`;
+
+  banner.querySelectorAll('.habit-check').forEach(el=>{
+    el.addEventListener('click', ()=> toggleHabitToday(el.dataset.id));
+  });
+  banner.querySelectorAll('.habit-del').forEach(el=>{
+    el.addEventListener('click', ()=> deleteHabit(el.dataset.id));
+  });
+  const addBtn = document.getElementById('addHabitBtn');
+  const input = document.getElementById('newHabitInput');
+  addBtn.addEventListener('click', addHabit);
+  input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') addHabit(); });
+}
+
+async function addHabit(){
+  const input = document.getElementById('newHabitInput');
+  const name = input.value.trim();
+  if (!name) return;
+  const { error } = await sb.from('habits').insert({
+    user_id: currentUser.id,
+    name,
+    completed_dates: [],
+  });
+  if (error){ alert('Could not add habit: ' + error.message); return; }
+  await fetchHabits();
+}
+
+async function toggleHabitToday(id){
+  const h = habits.find(x=>String(x.id)===String(id));
+  if (!h) return;
+  const today = todayDateStr();
+  const isDone = h.completedDates.includes(today);
+  const newDates = isDone
+    ? h.completedDates.filter(d=>d!==today)
+    : [...h.completedDates, today];
+  const { error } = await sb.from('habits').update({ completed_dates: newDates }).eq('id', id);
+  if (error){ alert('Could not update habit: ' + error.message); return; }
+  await fetchHabits();
+}
+
+async function deleteHabit(id){
+  const h = habits.find(x=>String(x.id)===String(id));
+  if (!h) return;
+  if (!confirm(`${currentLang==='ar' ? 'تمسح' : 'Delete'} "${h.name}"?`)) return;
+  const { error } = await sb.from('habits').delete().eq('id', id);
+  if (error){ alert('Could not delete habit: ' + error.message); return; }
+  await fetchHabits();
+}
+
 // ---- Calendar view ----
 let calCursor = new Date(); // month currently displayed
-const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
-const DOW_NAMES = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const MONTH_NAMES_EN = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const MONTH_NAMES_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+const DOW_NAMES_EN = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const DOW_NAMES_AR = ['أحد','اثنين','ثلاثاء','أربعاء','خميس','جمعة','سبت'];
+function monthNames(){ return currentLang === 'ar' ? MONTH_NAMES_AR : MONTH_NAMES_EN; }
+function dowNames(){ return currentLang === 'ar' ? DOW_NAMES_AR : DOW_NAMES_EN; }
 
 function setView(view){
   document.getElementById('taskList').style.display = view === 'list' ? 'grid' : 'none';
@@ -638,7 +978,7 @@ function renderCalendar(){
 
   const year = calCursor.getFullYear();
   const month = calCursor.getMonth();
-  document.getElementById('calMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
+  document.getElementById('calMonthLabel').textContent = monthNames()[month] + ' ' + year;
 
   const firstDay = new Date(year, month, 1);
   const startOffset = firstDay.getDay(); // 0=Sun
@@ -653,7 +993,7 @@ function renderCalendar(){
     byDay[t.due].push(t);
   });
 
-  let html = DOW_NAMES.map(d=>`<div class="cal-dow">${d}</div>`).join('');
+  let html = dowNames().map(d=>`<div class="cal-dow">${d}</div>`).join('');
   for (let i=0; i<startOffset; i++){
     html += `<div class="cal-cell empty"></div>`;
   }
@@ -696,16 +1036,19 @@ let revCursor = new Date();
 function taskCardHtml(t){
   const st = STATUS[t.status] || STATUS.todo;
   const pr = PRIORITY[t.priority] || PRIORITY.medium;
+  const catLabel = (CATEGORY_LABEL[t.category] && CATEGORY_LABEL[t.category][currentLang]) || t.category || '';
+  const dueLabel = currentLang === 'ar' ? 'الاستحقاق' : 'Due';
+  const notSetLabel = currentLang === 'ar' ? 'غير محدد' : 'Not set';
   return `<div class="card task-card" data-id="${t.id}">
     <div class="task-main">
       <div class="task-top">
         <span class="task-name">${escapeHtml(t.name)}</span>
-        <span class="badge" style="background:${st.bg};color:${st.color}">${st.label}</span>
-        <span class="badge" style="background:${pr.bg};color:${pr.color}">${pr.icon} ${pr.label}</span>
-        <span class="badge" style="background:#f1f5f9;color:#64748b">🏷 ${escapeHtml(t.category||'')}</span>
+        <span class="badge" style="background:${st.bg};color:${st.color}">${st.label[currentLang]}</span>
+        <span class="badge" style="background:${pr.bg};color:${pr.color}">${pr.icon} ${pr.label[currentLang]}</span>
+        <span class="badge" style="background:#f1f5f9;color:#64748b">🏷 ${escapeHtml(catLabel)}</span>
       </div>
       <p class="task-desc">${escapeHtml(t.desc)}</p>
-      <div class="task-due">📅 Due: ${t.due || 'Not set'}</div>
+      <div class="task-due">📅 ${dueLabel}: ${t.due || notSetLabel}</div>
     </div>
     <div class="task-progress">
       <div class="task-progress-label"><span>${t.progress}%</span></div>
@@ -723,7 +1066,7 @@ function reviewNotesKey(){
 function renderReview(){
   const year = revCursor.getFullYear();
   const month = revCursor.getMonth();
-  document.getElementById('revMonthLabel').textContent = MONTH_NAMES[month] + ' ' + year;
+  document.getElementById('revMonthLabel').textContent = monthNames()[month] + ' ' + year;
 
   const monthStart = `${year}-${String(month+1).padStart(2,'0')}-01`;
   const monthEnd = `${year}-${String(month+1).padStart(2,'0')}-31`;
@@ -737,10 +1080,10 @@ function renderReview(){
 
   const grid = document.getElementById('revStatGrid');
   const items = [
-    {icon:"📊", color:"#2563eb", bg:"#dbeafe", label:"Tasks due this month", value: total},
-    {icon:"✅", color:"#0891b2", bg:"#cffafe", label:"Completed", value: doneTasks.length},
-    {icon:"⚠️", color:"#ef4444", bg:"#fee2e2", label:"Not done", value: pendingTasks.length},
-    {icon:"📈", color:"#3b82f6", bg:"#dbeafe", label:"Completion rate", value: completionRate + '%'},
+    {icon:"📊", color:"#2563eb", bg:"#dbeafe", label: currentLang==='ar' ? 'مهام مستحقة الشهر ده' : 'Tasks due this month', value: total},
+    {icon:"✅", color:"#0891b2", bg:"#cffafe", label: currentLang==='ar' ? 'مكتملة' : 'Completed', value: doneTasks.length},
+    {icon:"⚠️", color:"#ef4444", bg:"#fee2e2", label: currentLang==='ar' ? 'مش متعملة' : 'Not done', value: pendingTasks.length},
+    {icon:"📈", color:"#3b82f6", bg:"#dbeafe", label: currentLang==='ar' ? 'نسبة الإنجاز' : 'Completion rate', value: completionRate + '%'},
   ];
   grid.innerHTML = items.map(it=>`<div class="card stat-card">
       <div class="stat-icon" style="background:${it.bg}">${it.icon}</div>
@@ -1006,12 +1349,15 @@ async function onLoggedIn(user){
   document.getElementById('auth_email').value = '';
   document.getElementById('auth_password').value = '';
   await fetchTasks();
+  await fetchHabits();
 }
 
 async function logOut(){
   await sb.auth.signOut();
   currentUser = null;
   tasks = [];
+  habits = [];
+  document.getElementById('habitsBanner').innerHTML = '';
   document.getElementById('appScreen').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('authError').textContent = '';
@@ -1097,6 +1443,7 @@ document.getElementById('forgotPasswordBtn').addEventListener('click', handleFor
 
 populateCategorySelects();
 document.getElementById('f_category').value = CATEGORIES[0];
+applyLanguage(currentLang);
 
 sb.auth.getSession().then(({ data })=>{
   if (data.session){
