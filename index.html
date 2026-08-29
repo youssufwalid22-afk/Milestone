@@ -140,6 +140,7 @@
       <button class="btn-save" id="authSubmitBtn">Login</button>
       <div class="login-error" id="authError"></div>
       <div class="login-success" id="authSuccess"></div>
+      <button type="button" id="forgotPasswordBtn" style="background:none;border:none;color:var(--blue-600);text-decoration:underline;cursor:pointer;font-size:12px;padding:0;text-align:center;">Forgot password?</button>
     </div>
     <p class="login-note">🔒 Secured with Supabase Authentication — real encrypted password storage and per-user data isolation via Row Level Security.</p>
   </div>
@@ -153,6 +154,7 @@
     </div>
     <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
       <button class="btn-primary" id="newTaskBtn">+ New Task</button>
+      <button class="btn-secondary" id="changePasswordBtn">🔑 Change Password</button>
       <button class="btn-secondary" id="logoutBtn">Logout</button>
     </div>
   </div>
@@ -296,6 +298,23 @@
     <div class="note-add">
       <input type="text" id="d_noteInput" placeholder="Write a new update..." />
       <button class="btn-add" id="d_addNoteBtn">Add</button>
+    </div>
+  </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal-overlay" id="passwordModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>Change Password</h3>
+      <button class="modal-close" data-close="passwordModal">✕</button>
+    </div>
+    <div class="form-col">
+      <input type="password" id="newPasswordInput" placeholder="New password (min 6 characters)" autocomplete="new-password" />
+      <input type="password" id="newPasswordConfirm" placeholder="Confirm new password" autocomplete="new-password" />
+      <button class="btn-save" id="savePasswordBtn">Update Password</button>
+      <div class="login-error" id="passwordError"></div>
+      <div class="login-success" id="passwordSuccess"></div>
     </div>
   </div>
 </div>
@@ -886,11 +905,82 @@ async function logOut(){
   document.getElementById('authSuccess').textContent = '';
 }
 
+// ---- Forgot password (from login screen) ----
+async function handleForgotPassword(){
+  const email = document.getElementById('auth_email').value.trim();
+  const errEl = document.getElementById('authError');
+  const okEl = document.getElementById('authSuccess');
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (!email){
+    errEl.textContent = 'Type your email above first, then click "Forgot password?" again.';
+    return;
+  }
+
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href,
+  });
+  if (error){
+    errEl.textContent = error.message;
+    return;
+  }
+  okEl.textContent = 'If an account exists for this email, a reset link has been sent — check your inbox.';
+}
+
+// ---- Change password (from inside the app) ----
+document.getElementById('changePasswordBtn').addEventListener('click', ()=>{
+  document.getElementById('newPasswordInput').value = '';
+  document.getElementById('newPasswordConfirm').value = '';
+  document.getElementById('passwordError').textContent = '';
+  document.getElementById('passwordSuccess').textContent = '';
+  openModal('passwordModal');
+});
+
+document.getElementById('savePasswordBtn').addEventListener('click', async ()=>{
+  const pass = document.getElementById('newPasswordInput').value;
+  const confirm = document.getElementById('newPasswordConfirm').value;
+  const errEl = document.getElementById('passwordError');
+  const okEl = document.getElementById('passwordSuccess');
+  const btn = document.getElementById('savePasswordBtn');
+  errEl.textContent = ''; okEl.textContent = '';
+
+  if (!pass || pass.length < 6){
+    errEl.textContent = 'Password must be at least 6 characters.';
+    return;
+  }
+  if (pass !== confirm){
+    errEl.textContent = 'Passwords do not match.';
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = 'Updating...';
+  const { error } = await sb.auth.updateUser({ password: pass });
+  btn.disabled = false; btn.textContent = 'Update Password';
+
+  if (error){
+    errEl.textContent = error.message;
+    return;
+  }
+  okEl.textContent = 'Password updated successfully.';
+  setTimeout(()=> closeModal('passwordModal'), 1500);
+});
+
+// If the user arrived here via a password-reset email link, Supabase fires this event
+sb.auth.onAuthStateChange((event, session)=>{
+  if (event === 'PASSWORD_RECOVERY'){
+    onLoggedIn(session.user).then(()=>{
+      document.getElementById('changePasswordBtn').click();
+      document.getElementById('passwordSuccess').textContent = 'Please set a new password below.';
+    });
+  }
+});
+
 document.getElementById('tabLogin').addEventListener('click', ()=> switchAuthTab('login'));
 document.getElementById('tabSignup').addEventListener('click', ()=> switchAuthTab('signup'));
 document.getElementById('authSubmitBtn').addEventListener('click', handleAuthSubmit);
 document.getElementById('auth_password').addEventListener('keydown', (e)=>{ if (e.key === 'Enter') handleAuthSubmit(); });
 document.getElementById('logoutBtn').addEventListener('click', logOut);
+document.getElementById('forgotPasswordBtn').addEventListener('click', handleForgotPassword);
 
 populateCategorySelects();
 document.getElementById('f_category').value = CATEGORIES[0];
