@@ -100,12 +100,17 @@
   .reminder-row .rdue{color:#9a3412;white-space:nowrap;}
 
   .top3-card{background:linear-gradient(135deg,#fef2f2,#fff);border:2px solid #fca5a5;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
-  .top3-card h3{margin:0 0 10px;font-size:14px;color:#b91c1c;}
+  .top3-card h3{margin:0 0 10px;font-size:14px;color:#b91c1c;display:flex;align-items:center;gap:6px;}
   .top3-row{display:flex;align-items:center;gap:12px;padding:8px 0;border-top:1px solid #fecaca;font-size:14px;cursor:pointer;}
   .top3-row:first-of-type{border-top:none;}
   .top3-num{width:24px;height:24px;border-radius:50%;background:#ef4444;color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
   .top3-row .t3name{font-weight:700;color:#7f1d1d;flex:1;}
   .top3-empty{font-size:13px;color:#b91c1c;opacity:.7;}
+  .top3-info-btn{width:18px;height:18px;border-radius:50%;background:#fecaca;color:#b91c1c;border:none;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
+  .top3-info-btn:hover{background:#fca5a5;}
+  .top3-explain{font-size:12px;color:#7f1d1d;background:#fff1f1;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.6;}
+  .top3-explain{font-size:12px;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.5;display:none;}
+  .top3-explain.open{display:block;}
 
   .habits-card{background:#f0fdf4;border:1px solid #86efac;border-radius:14px;padding:16px 18px;margin-bottom:20px;}
   .habits-card h3{margin:0 0 12px;font-size:14px;color:#166534;}
@@ -117,8 +122,33 @@
   .habit-streak{font-size:11px;color:#16a34a;font-weight:700;}
   .habit-del{background:none;border:none;color:#ef4444;cursor:pointer;font-size:13px;opacity:.6;}
   .habit-del:hover{opacity:1;}
-  .habit-add{display:flex;gap:8px;margin-top:10px;}
-  .habit-add input{flex:1;}
+  .habit-add{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;}
+  .habit-add input{flex:1;min-width:120px;}
+  .habit-add select{border:1px solid var(--slate-200);border-radius:8px;padding:8px 10px;font-size:13px;background:#fff;color:var(--slate-700);}
+  .habit-num-wrap{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .habit-num-btn{width:22px;height:22px;border-radius:6px;border:1px solid #86efac;background:#fff;color:#166534;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .habit-num-btn:hover{background:#dcfce7;}
+  .habit-num-value{font-size:12.5px;color:#166534;font-weight:700;min-width:56px;text-align:center;}
+  .habit-progress-track{width:100%;height:5px;border-radius:3px;background:#dcfce7;overflow:hidden;margin-top:4px;}
+  .habit-progress-fill{height:100%;background:#22c55e;border-radius:3px;transition:width .2s;}
+  .habit-name-wrap{flex:1;min-width:0;}
+  .habit-stats-toggle{background:none;border:none;color:#16a34a;font-size:12px;font-weight:700;cursor:pointer;padding:8px 0 0;text-decoration:underline;}
+  .habit-stats-panel{margin-top:10px;padding-top:10px;border-top:1px solid #bbf7d0;}
+  .habit-stats-row{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:12.5px;}
+  .habit-stats-name{flex:0 0 110px;color:#14532d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .habit-stats-track{flex:1;height:6px;border-radius:3px;background:#dcfce7;overflow:hidden;}
+  .habit-stats-fill{height:100%;background:#22c55e;border-radius:3px;}
+  .habit-stats-pct{flex:0 0 76px;text-align:right;color:#166534;font-weight:700;}
+
+  .habit-rings-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:14px;margin-bottom:4px;}
+  .habit-ring-card{display:flex;flex-direction:column;align-items:center;text-align:center;position:relative;}
+  .habit-ring-svg{cursor:pointer;}
+  .habit-ring-pct{position:absolute;top:38px;left:0;right:0;text-align:center;font-size:13px;font-weight:800;color:#166534;pointer-events:none;}
+  .habit-ring-name{margin-top:6px;font-size:12px;color:#14532d;font-weight:600;line-height:1.3;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .habit-ring-streak{font-size:10.5px;color:#16a34a;font-weight:700;margin-top:2px;}
+  .habit-ring-controls{display:flex;align-items:center;gap:4px;margin-top:4px;}
+  .habit-ring-del{position:absolute;top:-4px;right:6px;background:#fff;border:1px solid #fecaca;color:#ef4444;border-radius:50%;width:18px;height:18px;font-size:10px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .15s;}
+  .habit-ring-card:hover .habit-ring-del{opacity:1;}
 
   .view-toggle{display:flex;gap:4px;background:var(--slate-100);border-radius:10px;padding:4px;margin-inline-start:auto;}
   .view-toggle-btn{border:none;background:transparent;padding:8px 14px;border-radius:8px;font-size:13px;font-weight:700;color:var(--slate-500);cursor:pointer;}
@@ -250,6 +280,11 @@
         <button class="btn-secondary" id="revNextBtn" data-i18n="next">Next →</button>
       </div>
       <div class="stat-grid" id="revStatGrid" style="margin-bottom:0;"></div>
+    </div>
+
+    <div class="card" style="padding:20px;margin-bottom:16px;">
+      <h3 style="margin:0 0 12px;font-size:15px;color:var(--slate-700);" data-i18n="monthlyTrendTitle">📈 Completion Trend — last 6 months</h3>
+      <div id="monthlyTrendChart"></div>
     </div>
 
     <div class="card" style="padding:20px;margin-bottom:16px;">
@@ -441,8 +476,10 @@ const TRANSLATIONS = {
     viewList: "📋 List",
     viewCalendar: "📅 Calendar",
     viewReview: "📊 Monthly Review",
+    viewHabits: "🔁 Habits",
     prev: "← Prev",
     next: "Next →",
+    monthlyTrendTitle: "📈 Completion Trend — last 6 months",
     completedThisMonth: "✅ Completed this month",
     notDoneCarryOver: "⚠ Not done — carry over as action items",
     notesForNextMonth: "📝 Notes for next month",
@@ -463,10 +500,19 @@ const TRANSLATIONS = {
     percentComplete: "% complete",
     top3Title: "🎯 Top 3 Focus — do these first today",
     top3Empty: "No high-priority tasks right now — nice and clear!",
+    top3Explain: "These 3 are picked automatically: 🔴 High priority tasks come first, then 🟡 Medium, then 🔵 Low. Within the same priority, the task with the nearest due date goes first. Tasks with no due date are pushed to the end.",
     habitsTitle: "🔁 Daily Habits",
     habitAddPlaceholder: "Add a daily habit (e.g. Walk, Read, Study English)...",
     habitAdd: "Add",
+    habitTypeYesNo: "Yes / No",
+    habitTypeNumber: "Number",
+    habitTargetPlaceholder: "Daily goal (e.g. 8)",
+    habitUnitPlaceholder: "Unit (e.g. cups, pages)",
+    habitStatsToggle: "📊 This month's compliance",
+    habitStatsTitle: "Compliance this month",
+    habitStatsDays: "days",
     remindersTitle: "task(s) need your attention",
+    remindersExplain: "This lists tasks that aren't marked Completed and are either overdue, due today, or due within the next 3 days — sorted with the earliest due date first. Tasks with no due date never appear here. This is a banner shown while the dashboard is open, not a push notification you'd get when the app is closed.",
   },
   ar: {
     loginSub: "سجّل دخولك لمساحة عملك",
@@ -493,8 +539,10 @@ const TRANSLATIONS = {
     viewList: "📋 قائمة",
     viewCalendar: "📅 كالندر",
     viewReview: "📊 مراجعة شهرية",
+    viewHabits: "🔁 العادات",
     prev: "→ السابق",
     next: "التالي ←",
+    monthlyTrendTitle: "📈 اتجاه الإنجاز — آخر 6 شهور",
     completedThisMonth: "✅ اللي خلصته الشهر ده",
     notDoneCarryOver: "⚠ اللي متعملش — رحّلها كأكشن",
     notesForNextMonth: "📝 ملاحظات للشهر الجاي",
@@ -515,10 +563,19 @@ const TRANSLATIONS = {
     percentComplete: "% الإنجاز",
     top3Title: "🎯 أهم 3 مهام — ابدأ بيهم النهاردة",
     top3Empty: "مفيش مهام عالية الأولوية دلوقتي — تمام كده!",
+    top3Explain: "الـ 3 مهام دول بيتختاروا تلقائي: 🔴 المهام عالية الأولوية بتيجي الأول، بعدها 🟡 متوسطة، بعدها 🔵 منخفضة. لو فيه أكتر من مهمة بنفس الأولوية، اللي تاريخ استحقاقها أقرب بتتقدم. المهام اللي ملهاش تاريخ استحقاق بتتحط في الآخر.",
     habitsTitle: "🔁 عادات يومية",
     habitAddPlaceholder: "ضيف عادة يومية (زي مشي، قراية، إنجليزي)...",
     habitAdd: "إضافة",
+    habitTypeYesNo: "تم / لم يتم",
+    habitTypeNumber: "رقم",
+    habitTargetPlaceholder: "الهدف اليومي (مثال: 8)",
+    habitUnitPlaceholder: "الوحدة (مثال: كباية، صفحة)",
+    habitStatsToggle: "📊 نسبة الالتزام الشهر ده",
+    habitStatsTitle: "الالتزام الشهر ده",
+    habitStatsDays: "يوم",
     remindersTitle: "مهمة محتاجة انتباهك",
+    remindersExplain: "القائمة دي بتوري المهام اللي لسه مش Completed وإما متأخرة أو مستحقة النهاردة أو خلال أقرب 3 أيام - مرتبة من الأقرب تاريخًا. المهام اللي مالهاش تاريخ استحقاق مش بتظهر هنا خالص. ده بانر بيظهر بس وأنت فاتح الداشبورد، مش إشعار (Push) بيوصلك لو التطبيق مقفول.",
   }
 };
 
@@ -786,13 +843,23 @@ function renderReminders(){
 
   banner.style.display = 'block';
   banner.innerHTML = `<div class="reminders-card">
-    <h3>🔔 ${dueSoon.length} ${t('remindersTitle')}</h3>
+    <h3 style="display:flex;align-items:center;gap:8px;">🔔 ${dueSoon.length} ${t('remindersTitle')} <button class="top3-info-btn" id="remindersInfoBtn" aria-label="info">?</button></h3>
+    <div class="top3-explain" id="remindersExplainBox" style="display:none;">${t('remindersExplain')}</div>
     ${rows}
   </div>`;
 
   banner.querySelectorAll('.reminder-row').forEach(el=>{
     el.addEventListener('click', ()=> openDetail(el.dataset.id));
   });
+
+  const infoBtn = document.getElementById('remindersInfoBtn');
+  const explainBox = document.getElementById('remindersExplainBox');
+  if (infoBtn && explainBox){
+    infoBtn.addEventListener('click', (e)=>{
+      e.stopPropagation();
+      explainBox.style.display = explainBox.style.display === 'none' ? 'block' : 'none';
+    });
+  }
 }
 
 // ---- Top 3 Focus ----
@@ -815,9 +882,11 @@ function renderTop3(){
   banner.style.display = 'block';
   if (candidates.length === 0){
     banner.innerHTML = `<div class="top3-card">
-      <h3>${t('top3Title')}</h3>
+      <h3 style="display:flex;align-items:center;gap:8px;">${t('top3Title')} <button class="top3-info-btn" id="top3InfoBtn" aria-label="info">?</button></h3>
+      <div class="top3-explain" id="top3Explain" style="display:none;">${t('top3Explain')}</div>
       <div class="top3-empty">${t('top3Empty')}</div>
     </div>`;
+    wireTop3Info();
     return;
   }
 
@@ -830,12 +899,24 @@ function renderTop3(){
   }).join('');
 
   banner.innerHTML = `<div class="top3-card">
-    <h3>${t('top3Title')}</h3>
+    <h3 style="display:flex;align-items:center;gap:8px;">${t('top3Title')} <button class="top3-info-btn" id="top3InfoBtn" aria-label="info">?</button></h3>
+    <div class="top3-explain" id="top3Explain" style="display:none;">${t('top3Explain')}</div>
     ${rows}
   </div>`;
 
   banner.querySelectorAll('.top3-row').forEach(el=>{
     el.addEventListener('click', ()=> openDetail(el.dataset.id));
+  });
+  wireTop3Info();
+}
+
+function wireTop3Info(){
+  const btn = document.getElementById('top3InfoBtn');
+  const box = document.getElementById('top3Explain');
+  if (!btn || !box) return;
+  btn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
   });
 }
 
@@ -853,7 +934,11 @@ async function fetchHabits(){
   habits = (data || []).map(row => ({
     id: row.id,
     name: row.name,
+    habitType: row.habit_type || 'boolean',
+    target: row.target || null,
+    unit: row.unit || '',
     completedDates: row.completed_dates || [],
+    dailyValues: row.daily_values || {},
   }));
   renderHabits();
 }
@@ -868,7 +953,10 @@ function habitStreak(h){
   let d = new Date();
   while (true){
     const ds = d.toISOString().slice(0,10);
-    if (h.completedDates.includes(ds)){
+    const done = h.habitType === 'numeric'
+      ? (h.dailyValues[ds] || 0) >= h.target
+      : h.completedDates.includes(ds);
+    if (done){
       streak++;
       d.setDate(d.getDate() - 1);
     } else {
@@ -883,9 +971,29 @@ function renderHabits(){
   const today = todayDateStr();
 
   const rows = habits.map(h=>{
-    const done = h.completedDates.includes(today);
     const streak = habitStreak(h);
     const streakLabel = streak > 0 ? `🔥 ${streak}` : '';
+
+    if (h.habitType === 'numeric'){
+      const todayVal = h.dailyValues[today] || 0;
+      const pct = h.target > 0 ? Math.min(100, Math.round((todayVal / h.target) * 100)) : 0;
+      const unitLabel = h.unit ? ` ${escapeHtml(h.unit)}` : '';
+      return `<div class="habit-row">
+        <div class="habit-name-wrap">
+          <span class="habit-name">${escapeHtml(h.name)}</span>
+          <div class="habit-progress-track"><div class="habit-progress-fill" style="width:${pct}%"></div></div>
+        </div>
+        <div class="habit-num-wrap">
+          <button class="habit-num-btn" data-id="${h.id}" data-delta="-1" aria-label="minus">−</button>
+          <span class="habit-num-value">${todayVal}/${h.target}${unitLabel}</span>
+          <button class="habit-num-btn" data-id="${h.id}" data-delta="1" aria-label="plus">+</button>
+        </div>
+        <span class="habit-streak">${streakLabel}</span>
+        <button class="habit-del" data-id="${h.id}">✕</button>
+      </div>`;
+    }
+
+    const done = h.completedDates.includes(today);
     return `<div class="habit-row">
       <div class="habit-check ${done?'done':''}" data-id="${h.id}">${done?'✓':''}</div>
       <span class="habit-name">${escapeHtml(h.name)}</span>
@@ -901,12 +1009,23 @@ function renderHabits(){
     ${habits.length ? rows : `<div style="font-size:13px;color:#166534;opacity:.7;">${emptyMsg}</div>`}
     <div class="habit-add">
       <input type="text" id="newHabitInput" placeholder="${t('habitAddPlaceholder')}" />
+      <select id="newHabitType" onchange="onHabitTypeChange()">
+        <option value="boolean">${t('habitTypeYesNo')}</option>
+        <option value="numeric">${t('habitTypeNumber')}</option>
+      </select>
+      <input type="number" id="newHabitTarget" min="1" step="1" placeholder="${t('habitTargetPlaceholder')}" style="display:none;width:110px" />
+      <input type="text" id="newHabitUnit" placeholder="${t('habitUnitPlaceholder')}" style="display:none;width:130px" />
       <button class="btn-add" id="addHabitBtn">${t('habitAdd')}</button>
     </div>
+    ${habits.length ? `<button class="habit-stats-toggle" id="habitStatsToggleBtn">${t('habitStatsToggle')}</button>
+    <div class="habit-stats-panel" id="habitStatsPanel" style="display:none;"></div>` : ''}
   </div>`;
 
   banner.querySelectorAll('.habit-check').forEach(el=>{
     el.addEventListener('click', ()=> toggleHabitToday(el.dataset.id));
+  });
+  banner.querySelectorAll('.habit-num-btn').forEach(el=>{
+    el.addEventListener('click', ()=> adjustHabitValue(el.dataset.id, parseInt(el.dataset.delta, 10)));
   });
   banner.querySelectorAll('.habit-del').forEach(el=>{
     el.addEventListener('click', ()=> deleteHabit(el.dataset.id));
@@ -915,18 +1034,215 @@ function renderHabits(){
   const input = document.getElementById('newHabitInput');
   addBtn.addEventListener('click', addHabit);
   input.addEventListener('keydown', (e)=>{ if (e.key === 'Enter') addHabit(); });
+
+  const statsBtn = document.getElementById('habitStatsToggleBtn');
+  if (statsBtn){
+    statsBtn.addEventListener('click', toggleHabitStats);
+  }
+}
+
+function onHabitTypeChange(){
+  const typeSel = document.getElementById('newHabitType');
+  const isNum = typeSel.value === 'numeric';
+  document.getElementById('newHabitTarget').style.display = isNum ? '' : 'none';
+  document.getElementById('newHabitUnit').style.display = isNum ? '' : 'none';
+}
+
+let habitStatsCursor = new Date();
+
+function toggleHabitStats(){
+  const panel = document.getElementById('habitStatsPanel');
+  if (!panel) return;
+  const isOpen = panel.style.display !== 'none';
+  if (isOpen){
+    panel.style.display = 'none';
+  } else {
+    habitStatsCursor = new Date(); // reset to current month each time it's opened
+    renderHabitStatsPanel();
+    panel.style.display = 'block';
+  }
+}
+
+function renderHabitStatsPanel(){
+  const panel = document.getElementById('habitStatsPanel');
+  if (!panel) return;
+
+  const year = habitStatsCursor.getFullYear();
+  const month = habitStatsCursor.getMonth();
+  const now = new Date();
+  const isCurrentMonth = (year === now.getFullYear() && month === now.getMonth());
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysElapsed = isCurrentMonth ? now.getDate() : daysInMonth;
+  const monthLabel = monthNames()[month] + ' ' + year;
+
+  const rows = habits.map(h=>{
+    let hitCount = 0;
+    for (let day = 1; day <= daysElapsed; day++){
+      const d = new Date(year, month, day);
+      const ds = d.toISOString().slice(0,10);
+      const hit = h.habitType === 'numeric'
+        ? (h.dailyValues[ds] || 0) >= h.target
+        : h.completedDates.includes(ds);
+      if (hit) hitCount++;
+    }
+    const pct = daysElapsed > 0 ? Math.round((hitCount / daysElapsed) * 100) : 0;
+    return `<div class="habit-stats-row">
+      <span class="habit-stats-name" title="${escapeHtml(h.name)}">${escapeHtml(h.name)}</span>
+      <div class="habit-stats-track"><div class="habit-stats-fill" style="width:${pct}%"></div></div>
+      <span class="habit-stats-pct">${pct}% (${hitCount}/${daysElapsed} ${t('habitStatsDays')})</span>
+    </div>`;
+  }).join('');
+
+  const prevLabel = currentLang === 'ar' ? '→' : '←';
+  const nextLabel = currentLang === 'ar' ? '←' : '→';
+  const trendTitle = currentLang === 'ar' ? '📈 اتجاه الالتزام — آخر 6 شهور' : '📈 Compliance Trend — last 6 months';
+
+  panel.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+      <button class="habit-num-btn" id="habitStatsPrevBtn" aria-label="prev month">${prevLabel}</button>
+      <div style="font-size:12.5px;font-weight:700;color:#166534;">${t('habitStatsTitle')} — ${monthLabel}</div>
+      <button class="habit-num-btn" id="habitStatsNextBtn" aria-label="next month" ${isCurrentMonth ? 'disabled style="opacity:.3;cursor:default;"' : ''}>${nextLabel}</button>
+    </div>
+    ${habits.length ? rows : ''}
+    ${habits.length ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #bbf7d0;">
+      <div style="font-size:12.5px;font-weight:700;color:#166534;margin-bottom:6px;">${trendTitle}</div>
+      <div id="habitTrendChart"></div>
+    </div>` : ''}`;
+
+  document.getElementById('habitStatsPrevBtn').addEventListener('click', ()=>{
+    habitStatsCursor = new Date(year, month - 1, 1);
+    renderHabitStatsPanel();
+  });
+  const nextBtn = document.getElementById('habitStatsNextBtn');
+  if (!isCurrentMonth){
+    nextBtn.addEventListener('click', ()=>{
+      habitStatsCursor = new Date(year, month + 1, 1);
+      renderHabitStatsPanel();
+    });
+  }
+
+  if (habits.length) renderHabitTrendChart(year, month);
+}
+
+function habitMonthCompliancePct(year, month){
+  const now = new Date();
+  const isCurrentMonth = (year === now.getFullYear() && month === now.getMonth());
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysElapsed = isCurrentMonth ? now.getDate() : daysInMonth;
+  if (daysElapsed <= 0 || habits.length === 0) return null;
+
+  let totalPct = 0;
+  habits.forEach(h=>{
+    let hitCount = 0;
+    for (let day = 1; day <= daysElapsed; day++){
+      const d = new Date(year, month, day);
+      const ds = d.toISOString().slice(0,10);
+      const hit = h.habitType === 'numeric'
+        ? (h.dailyValues[ds] || 0) >= h.target
+        : h.completedDates.includes(ds);
+      if (hit) hitCount++;
+    }
+    totalPct += (hitCount / daysElapsed) * 100;
+  });
+  return Math.round(totalPct / habits.length);
+}
+
+function renderHabitTrendChart(anchorYear, anchorMonth){
+  const el = document.getElementById('habitTrendChart');
+  if (!el) return;
+
+  const anchor = new Date(anchorYear, anchorMonth, 1);
+  const months = [];
+  for (let i = 5; i >= 0; i--){
+    months.push(new Date(anchor.getFullYear(), anchor.getMonth() - i, 1));
+  }
+
+  const names = monthNames();
+  const labels = months.map(d => names[d.getMonth()].slice(0,3) + " '" + String(d.getFullYear()).slice(2));
+  // Only show months from each habit's creation onward isn't tracked here, so we just compute compliance
+  // for every month; months before any habit existed will naturally show 0%, which is expected.
+  const values = months.map(d => habitMonthCompliancePct(d.getFullYear(), d.getMonth()));
+
+  const w = 560, h = 170, padL = 34, padB = 24, padT = 14, padR = 12;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const stepX = plotW / (values.length - 1 || 1);
+
+  const points = values.map((v,i)=> v===null ? null : [padL + i*stepX, padT + plotH - (v/100)*plotH]);
+
+  let gridLines = '';
+  for (let i=0;i<=4;i++){
+    const gy = padT + (plotH/4)*i;
+    const val = Math.round(100 - (100/4)*i);
+    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#dcfce7" stroke-width="1"/>`;
+    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="9.5" fill="#16a34a" text-anchor="end">${val}%</text>`;
+  }
+
+  let linePath = '';
+  points.forEach(p=>{
+    if (!p) return;
+    linePath += (linePath === '' ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' ';
+  });
+
+  const dots = points.map((p,i)=> p ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#22c55e"/>
+    <text x="${p[0].toFixed(1)}" y="${p[1]-9}" font-size="9.5" fill="#16a34a" text-anchor="middle" font-weight="700">${values[i]}%</text>` : '').join('');
+
+  const xLabels = months.map((d,i)=>{
+    const x = padL + i*stepX;
+    return `<text x="${x}" y="${h-6}" font-size="9.5" fill="#16a34a" text-anchor="middle">${labels[i]}</text>`;
+  }).join('');
+
+  el.innerHTML = `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:170px;">
+      ${gridLines}
+      <path d="${linePath}" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>`;
 }
 
 async function addHabit(){
   const input = document.getElementById('newHabitInput');
+  const typeSel = document.getElementById('newHabitType');
+  const targetInput = document.getElementById('newHabitTarget');
+  const unitInput = document.getElementById('newHabitUnit');
   const name = input.value.trim();
   if (!name) return;
+
+  const habitType = typeSel ? typeSel.value : 'boolean';
+  let target = null;
+  let unit = null;
+
+  if (habitType === 'numeric'){
+    target = parseFloat(targetInput.value);
+    if (!target || target <= 0){
+      alert(currentLang === 'ar' ? 'حدد هدف رقمي صحيح أكبر من صفر.' : 'Enter a valid daily goal number greater than 0.');
+      return;
+    }
+    unit = unitInput.value.trim() || (currentLang === 'ar' ? 'مرة' : 'x');
+  }
+
   const { error } = await sb.from('habits').insert({
     user_id: currentUser.id,
     name,
+    habit_type: habitType,
+    target,
+    unit,
     completed_dates: [],
+    daily_values: {},
   });
   if (error){ alert('Could not add habit: ' + error.message); return; }
+  await fetchHabits();
+}
+
+async function adjustHabitValue(id, delta){
+  const h = habits.find(x=>String(x.id)===String(id));
+  if (!h) return;
+  const today = todayDateStr();
+  const current = h.dailyValues[today] || 0;
+  const next = Math.max(0, current + delta);
+  const newValues = { ...h.dailyValues, [today]: next };
+  const { error } = await sb.from('habits').update({ daily_values: newValues }).eq('id', id);
+  if (error){ alert('Could not update habit: ' + error.message); return; }
   await fetchHabits();
 }
 
@@ -1110,6 +1426,71 @@ function renderReview(){
   const notesEl = document.getElementById('revNotes');
   notesEl.value = localStorage.getItem(reviewNotesKey()) || '';
   document.getElementById('revSavedMsg').style.display = 'none';
+
+  renderMonthlyTrendChart();
+}
+
+function renderMonthlyTrendChart(){
+  const el = document.getElementById('monthlyTrendChart');
+  if (!el) return;
+
+  // Build the last 6 months ending at the month currently shown in Monthly Review
+  const anchor = new Date(revCursor.getFullYear(), revCursor.getMonth(), 1);
+  const months = [];
+  for (let i = 5; i >= 0; i--){
+    months.push(new Date(anchor.getFullYear(), anchor.getMonth() - i, 1));
+  }
+
+  const names = monthNames();
+  const labels = months.map(d => names[d.getMonth()].slice(0,3) + " '" + String(d.getFullYear()).slice(2));
+  const values = months.map(d=>{
+    const y = d.getFullYear(), m = d.getMonth();
+    const mStart = `${y}-${String(m+1).padStart(2,'0')}-01`;
+    const mEnd = `${y}-${String(m+1).padStart(2,'0')}-31`;
+    const monthTasks = tasks.filter(t => t.due && t.due >= mStart && t.due <= mEnd);
+    if (monthTasks.length === 0) return null; // no data point for months with nothing due
+    const done = monthTasks.filter(t => t.status === 'done').length;
+    return Math.round((done / monthTasks.length) * 100);
+  });
+
+  const w = 640, h = 200, padL = 34, padB = 26, padT = 16, padR = 14;
+  const plotW = w - padL - padR, plotH = h - padT - padB;
+  const stepX = plotW / (values.length - 1 || 1);
+
+  const knownPoints = values.map((v,i)=> v===null ? null : [padL + i*stepX, padT + plotH - (v/100)*plotH]);
+
+  let gridLines = '';
+  for (let i=0;i<=4;i++){
+    const gy = padT + (plotH/4)*i;
+    const val = Math.round(100 - (100/4)*i);
+    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#e2e8f0" stroke-width="1"/>`;
+    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="10" fill="#64748b" text-anchor="end">${val}%</text>`;
+  }
+
+  let linePath = '';
+  knownPoints.forEach((p,i)=>{
+    if (!p) return;
+    linePath += (linePath === '' ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' ';
+  });
+
+  const dots = knownPoints.map((p,i)=> p ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#2563eb"/>
+    <text x="${p[0].toFixed(1)}" y="${p[1]-10}" font-size="10" fill="#2563eb" text-anchor="middle" font-weight="700">${values[i]}%</text>` : '').join('');
+
+  const xLabels = months.map((d,i)=>{
+    const x = padL + i*stepX;
+    return `<text x="${x}" y="${h-6}" font-size="10" fill="#64748b" text-anchor="middle">${labels[i]}</text>`;
+  }).join('');
+
+  const noDataMsg = currentLang === 'ar' ? 'مفيش بيانات كفاية لعرض الاتجاه لسه' : 'Not enough data yet to show a trend';
+  const anyData = values.some(v => v !== null);
+
+  el.innerHTML = anyData ? `
+    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;">
+      ${gridLines}
+      <path d="${linePath}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+      ${dots}
+      ${xLabels}
+    </svg>` : `<div class="empty" style="padding:16px;">${noDataMsg}</div>`;
 }
 
 document.getElementById('revPrevBtn').addEventListener('click', ()=>{
