@@ -479,7 +479,7 @@ const TRANSLATIONS = {
     viewHabits: "🔁 Habits",
     prev: "← Prev",
     next: "Next →",
-    monthlyTrendTitle: "📈 Completion Trend — last 6 months",
+    monthlyTrendTitle: "📈 Completion Trend",
     completedThisMonth: "✅ Completed this month",
     notDoneCarryOver: "⚠ Not done — carry over as action items",
     notesForNextMonth: "📝 Notes for next month",
@@ -542,7 +542,7 @@ const TRANSLATIONS = {
     viewHabits: "🔁 العادات",
     prev: "→ السابق",
     next: "التالي ←",
-    monthlyTrendTitle: "📈 اتجاه الإنجاز — آخر 6 شهور",
+    monthlyTrendTitle: "📈 اتجاه الإنجاز",
     completedThisMonth: "✅ اللي خلصته الشهر ده",
     notDoneCarryOver: "⚠ اللي متعملش — رحّلها كأكشن",
     notesForNextMonth: "📝 ملاحظات للشهر الجاي",
@@ -783,6 +783,9 @@ function renderTasks(){
   const catF = document.getElementById('catFilter').value;
 
   const filtered = tasks.filter(t=>{
+    // Completed tasks stay out of the default "All Statuses" view — filter by
+    // "Completed" explicitly (or search) to still find them.
+    if (statusF === 'all' && t.status === 'done' && !query) return false;
     if (statusF !== 'all' && t.status !== statusF) return false;
     if (catF !== 'all' && t.category !== catF) return false;
     if (query && !t.name.toLowerCase().includes(query) && !(t.desc||'').toLowerCase().includes(query)) return false;
@@ -1075,6 +1078,11 @@ function renderHabitStatsPanel(){
   const daysElapsed = isCurrentMonth ? now.getDate() : daysInMonth;
   const monthLabel = monthNames()[month] + ' ' + year;
 
+  // Cap how far back you can go: 12 months before the current month
+  const earliestAllowed = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const canGoPrev = (year > earliestAllowed.getFullYear()) ||
+    (year === earliestAllowed.getFullYear() && month > earliestAllowed.getMonth());
+
   const rows = habits.map(h=>{
     let hitCount = 0;
     for (let day = 1; day <= daysElapsed; day++){
@@ -1095,21 +1103,23 @@ function renderHabitStatsPanel(){
 
   const prevLabel = currentLang === 'ar' ? '→' : '←';
   const nextLabel = currentLang === 'ar' ? '←' : '→';
-  const trendTitle = currentLang === 'ar' ? '📈 اتجاه الالتزام — آخر 6 شهور' : '📈 Compliance Trend — last 6 months';
+  const overallPct = habitMonthCompliancePct(year, month);
+  const overallLabel = currentLang === 'ar' ? 'نسبة الالتزام الكلية للشهر ده' : 'Overall compliance this month';
 
   panel.innerHTML = `
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-      <button class="habit-num-btn" id="habitStatsPrevBtn" aria-label="prev month">${prevLabel}</button>
+      <button class="habit-num-btn" id="habitStatsPrevBtn" aria-label="prev month" ${canGoPrev ? '' : 'disabled style="opacity:.3;cursor:default;"'}>${prevLabel}</button>
       <div style="font-size:12.5px;font-weight:700;color:#166534;">${t('habitStatsTitle')} — ${monthLabel}</div>
       <button class="habit-num-btn" id="habitStatsNextBtn" aria-label="next month" ${isCurrentMonth ? 'disabled style="opacity:.3;cursor:default;"' : ''}>${nextLabel}</button>
     </div>
-    ${habits.length ? rows : ''}
-    ${habits.length ? `<div style="margin-top:14px;padding-top:12px;border-top:1px solid #bbf7d0;">
-      <div style="font-size:12.5px;font-weight:700;color:#166534;margin-bottom:6px;">${trendTitle}</div>
-      <div id="habitTrendChart"></div>
-    </div>` : ''}`;
+    ${habits.length ? `<div style="text-align:center;background:#dcfce7;border-radius:10px;padding:12px;margin-bottom:12px;">
+      <div style="font-size:26px;font-weight:800;color:#166534;">${overallPct === null ? '—' : overallPct + '%'}</div>
+      <div style="font-size:11px;color:#16a34a;">${overallLabel}</div>
+    </div>` : ''}
+    ${habits.length ? rows : ''}`;
 
   document.getElementById('habitStatsPrevBtn').addEventListener('click', ()=>{
+    if (!canGoPrev) return;
     habitStatsCursor = new Date(year, month - 1, 1);
     renderHabitStatsPanel();
   });
@@ -1120,8 +1130,6 @@ function renderHabitStatsPanel(){
       renderHabitStatsPanel();
     });
   }
-
-  if (habits.length) renderHabitTrendChart(year, month);
 }
 
 function habitMonthCompliancePct(year, month){
@@ -1145,59 +1153,6 @@ function habitMonthCompliancePct(year, month){
     totalPct += (hitCount / daysElapsed) * 100;
   });
   return Math.round(totalPct / habits.length);
-}
-
-function renderHabitTrendChart(anchorYear, anchorMonth){
-  const el = document.getElementById('habitTrendChart');
-  if (!el) return;
-
-  const anchor = new Date(anchorYear, anchorMonth, 1);
-  const months = [];
-  for (let i = 5; i >= 0; i--){
-    months.push(new Date(anchor.getFullYear(), anchor.getMonth() - i, 1));
-  }
-
-  const names = monthNames();
-  const labels = months.map(d => names[d.getMonth()].slice(0,3) + " '" + String(d.getFullYear()).slice(2));
-  // Only show months from each habit's creation onward isn't tracked here, so we just compute compliance
-  // for every month; months before any habit existed will naturally show 0%, which is expected.
-  const values = months.map(d => habitMonthCompliancePct(d.getFullYear(), d.getMonth()));
-
-  const w = 560, h = 170, padL = 34, padB = 24, padT = 14, padR = 12;
-  const plotW = w - padL - padR, plotH = h - padT - padB;
-  const stepX = plotW / (values.length - 1 || 1);
-
-  const points = values.map((v,i)=> v===null ? null : [padL + i*stepX, padT + plotH - (v/100)*plotH]);
-
-  let gridLines = '';
-  for (let i=0;i<=4;i++){
-    const gy = padT + (plotH/4)*i;
-    const val = Math.round(100 - (100/4)*i);
-    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#dcfce7" stroke-width="1"/>`;
-    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="9.5" fill="#16a34a" text-anchor="end">${val}%</text>`;
-  }
-
-  let linePath = '';
-  points.forEach(p=>{
-    if (!p) return;
-    linePath += (linePath === '' ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' ';
-  });
-
-  const dots = points.map((p,i)=> p ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.5" fill="#22c55e"/>
-    <text x="${p[0].toFixed(1)}" y="${p[1]-9}" font-size="9.5" fill="#16a34a" text-anchor="middle" font-weight="700">${values[i]}%</text>` : '').join('');
-
-  const xLabels = months.map((d,i)=>{
-    const x = padL + i*stepX;
-    return `<text x="${x}" y="${h-6}" font-size="9.5" fill="#16a34a" text-anchor="middle">${labels[i]}</text>`;
-  }).join('');
-
-  el.innerHTML = `
-    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:170px;">
-      ${gridLines}
-      <path d="${linePath}" fill="none" stroke="#22c55e" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>
-      ${dots}
-      ${xLabels}
-    </svg>`;
 }
 
 async function addHabit(){
@@ -1434,67 +1389,30 @@ function renderMonthlyTrendChart(){
   const el = document.getElementById('monthlyTrendChart');
   if (!el) return;
 
-  // Build the last 6 months ending at the month currently shown in Monthly Review
-  const anchor = new Date(revCursor.getFullYear(), revCursor.getMonth(), 1);
-  const months = [];
-  for (let i = 5; i >= 0; i--){
-    months.push(new Date(anchor.getFullYear(), anchor.getMonth() - i, 1));
-  }
+  const year = revCursor.getFullYear();
+  const month = revCursor.getMonth();
+  const mStart = `${year}-${String(month+1).padStart(2,'0')}-01`;
+  const mEnd = `${year}-${String(month+1).padStart(2,'0')}-31`;
+  const monthTasks = tasks.filter(t => t.due && t.due >= mStart && t.due <= mEnd);
+  const pct = monthTasks.length ? Math.round((monthTasks.filter(t=>t.status==='done').length / monthTasks.length) * 100) : null;
 
-  const names = monthNames();
-  const labels = months.map(d => names[d.getMonth()].slice(0,3) + " '" + String(d.getFullYear()).slice(2));
-  const values = months.map(d=>{
-    const y = d.getFullYear(), m = d.getMonth();
-    const mStart = `${y}-${String(m+1).padStart(2,'0')}-01`;
-    const mEnd = `${y}-${String(m+1).padStart(2,'0')}-31`;
-    const monthTasks = tasks.filter(t => t.due && t.due >= mStart && t.due <= mEnd);
-    if (monthTasks.length === 0) return null; // no data point for months with nothing due
-    const done = monthTasks.filter(t => t.status === 'done').length;
-    return Math.round((done / monthTasks.length) * 100);
-  });
+  const noDataMsg = currentLang === 'ar' ? 'مفيش مهام مستحقة في الشهر ده' : 'No tasks due this month';
+  const label = currentLang === 'ar' ? 'نسبة الإنجاز للشهر ده' : 'Completion rate this month';
 
-  const w = 640, h = 200, padL = 34, padB = 26, padT = 16, padR = 14;
-  const plotW = w - padL - padR, plotH = h - padT - padB;
-  const stepX = plotW / (values.length - 1 || 1);
-
-  const knownPoints = values.map((v,i)=> v===null ? null : [padL + i*stepX, padT + plotH - (v/100)*plotH]);
-
-  let gridLines = '';
-  for (let i=0;i<=4;i++){
-    const gy = padT + (plotH/4)*i;
-    const val = Math.round(100 - (100/4)*i);
-    gridLines += `<line x1="${padL}" y1="${gy}" x2="${w-padR}" y2="${gy}" stroke="#e2e8f0" stroke-width="1"/>`;
-    gridLines += `<text x="${padL-6}" y="${gy+4}" font-size="10" fill="#64748b" text-anchor="end">${val}%</text>`;
-  }
-
-  let linePath = '';
-  knownPoints.forEach((p,i)=>{
-    if (!p) return;
-    linePath += (linePath === '' ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1) + ' ';
-  });
-
-  const dots = knownPoints.map((p,i)=> p ? `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="4" fill="#2563eb"/>
-    <text x="${p[0].toFixed(1)}" y="${p[1]-10}" font-size="10" fill="#2563eb" text-anchor="middle" font-weight="700">${values[i]}%</text>` : '').join('');
-
-  const xLabels = months.map((d,i)=>{
-    const x = padL + i*stepX;
-    return `<text x="${x}" y="${h-6}" font-size="10" fill="#64748b" text-anchor="middle">${labels[i]}</text>`;
-  }).join('');
-
-  const noDataMsg = currentLang === 'ar' ? 'مفيش بيانات كفاية لعرض الاتجاه لسه' : 'Not enough data yet to show a trend';
-  const anyData = values.some(v => v !== null);
-
-  el.innerHTML = anyData ? `
-    <svg viewBox="0 0 ${w} ${h}" style="width:100%;height:200px;">
-      ${gridLines}
-      <path d="${linePath}" fill="none" stroke="#2563eb" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
-      ${dots}
-      ${xLabels}
-    </svg>` : `<div class="empty" style="padding:16px;">${noDataMsg}</div>`;
+  el.innerHTML = pct === null
+    ? `<div class="empty" style="padding:16px;">${noDataMsg}</div>`
+    : `<div style="text-align:center;background:#eff6ff;border-radius:10px;padding:16px;">
+        <div style="font-size:32px;font-weight:800;color:#1e3a8a;">${pct}%</div>
+        <div style="font-size:12px;color:#3b82f6;">${label}</div>
+      </div>`;
 }
 
 document.getElementById('revPrevBtn').addEventListener('click', ()=>{
-  revCursor = new Date(revCursor.getFullYear(), revCursor.getMonth()-1, 1);
+  const now = new Date();
+  const earliestAllowed = new Date(now.getFullYear(), now.getMonth() - 11, 1);
+  const candidate = new Date(revCursor.getFullYear(), revCursor.getMonth() - 1, 1);
+  if (candidate < earliestAllowed) return; // cap history at 12 months back
+  revCursor = candidate;
   renderReview();
 });
 document.getElementById('revNextBtn').addEventListener('click', ()=>{
