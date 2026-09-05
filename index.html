@@ -180,6 +180,73 @@
   .login-error{color:#ef4444;font-size:13px;margin-top:6px;min-height:16px;}
   .login-success{color:#0891b2;font-size:13px;margin-top:6px;min-height:16px;}
   .login-note{font-size:11px;color:var(--slate-400);margin-top:16px;line-height:1.5;}
+
+  /* ===== Dark theme: black background, blue accents ===== */
+  body{
+    background: radial-gradient(circle at 20% 0%, #0b1220 0%, #05060a 55%, #000000 100%);
+    color: #cbd5e1;
+  }
+  .header h1{color:#60a5fa;}
+  .header p{color:#94a3b8;}
+  .card{background:#0d1424;border:1px solid #1e3a5f;box-shadow:0 4px 18px rgba(0,0,0,.5);}
+  .task-name{color:#e2e8f0;}
+  .task-desc{color:#94a3b8;}
+  .task-due{color:#64748b;}
+  .stat-label{color:#93c5fd;opacity:.8;}
+  .chart-card h3{color:#93c5fd;}
+  .chart-head span{color:#60a5fa;}
+  .filters, .search-wrap input, select, input[type=text], input[type=email], input[type=date], input[type=number], input[type=password], textarea{
+    background:#0b1220;color:#e2e8f0;border:1px solid #1e3a5f;
+  }
+  select option{background:#0b1220;color:#e2e8f0;}
+  .empty{color:#64748b;}
+  .btn-secondary{background:#0d1424;color:#93c5fd;border:1px solid #1e3a5f;}
+  .btn-secondary:hover{background:#132038;}
+  .modal{background:#0b1220;border:1px solid #1e3a5f;}
+  .modal-head h3{color:#93c5fd;}
+  .modal-close{background:#132038;color:#93c5fd;}
+  label.field-label{color:#93c5fd;opacity:.8;}
+  .footer-note{color:#475569;}
+  .note-item{background:#0f1c33;color:#93c5fd;}
+  .progress-track, .habit-progress-track, .habit-stats-track, .top3-num{background:#132038;}
+  .view-toggle{background:#0b1220;}
+  .view-toggle-btn{color:#64748b;}
+  .view-toggle-btn.active{background:#132038;color:#60a5fa;}
+  .cal-cell{background:#0d1424;border:1px solid #1e3a5f;}
+  .cal-daynum{color:#93c5fd;}
+  .cal-dow{color:#64748b;}
+  #trendChart svg text, #catChart svg text, #monthlyTrendChart svg text, #calGrid svg text{fill:#93c5fd;}
+  #trendChart svg line, #catChart svg line, #monthlyTrendChart svg line{stroke:#1e3a5f;}
+
+  #loginScreen{background:transparent;}
+  .login-card{background:#0d1424;border:1px solid #1e3a5f;box-shadow:0 10px 30px rgba(0,0,0,.6);}
+  .login-card h2{color:#60a5fa;}
+  .login-card p.sub{color:#94a3b8;}
+  .login-tabs{background:#0b1220;}
+  .login-tab{color:#64748b;}
+  .login-tab.active{background:#132038;color:#60a5fa;}
+  .login-note{color:#475569;}
+
+  .reminders-card{background:#1a1206;border:1px solid #78350f;}
+  .reminders-card h3{color:#fdba74;}
+  .reminder-row{border-top-color:#3f2a10;}
+  .reminder-row .rname{color:#fed7aa;}
+  .reminder-row .rdue{color:#fdba74;}
+  .top3-card{background:#1a0a0a;border:2px solid #7f1d1d;}
+  .top3-card h3{color:#fca5a5;}
+  .top3-row{border-top-color:#3f1414;}
+  .top3-row .t3name{color:#fecaca;}
+  .top3-explain{background:#1a0a0a;color:#fecaca;border-color:#7f1d1d;}
+  .habits-card{background:#07160d;border:1px solid #14532d;}
+  .habits-card h3{color:#86efac;}
+  .habit-row{border-top-color:#0e2a1a;}
+  .habit-name{color:#bbf7d0;}
+  .habit-check{background:#07160d;border-color:#22c55e;}
+  .habit-num-btn{background:#07160d;color:#86efac;border-color:#166534;}
+  .habit-num-btn:hover{background:#0e2a1a;}
+  .habit-num-value{color:#86efac;}
+  .habit-stats-name{color:#bbf7d0;}
+  .habit-stats-pct{color:#86efac;}
 </style>
 </head>
 <body>
