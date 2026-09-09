@@ -57,6 +57,8 @@
   }
   .task-list{display:grid;gap:12px;}
   .task-card{padding:16px;display:flex;justify-content:space-between;align-items:center;gap:16px;cursor:pointer;transition:box-shadow .15s;}
+  .quad-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;display:inline-block;}
+  .task-card.important-task{border-inline-start:4px solid #eab308;}
   .task-card:hover{box-shadow:0 4px 14px rgba(37,99,235,.12);}
   .task-main{flex:1;min-width:0;}
   .task-top{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap;}
@@ -109,6 +111,14 @@
   .top3-info-btn{width:18px;height:18px;border-radius:50%;background:#fecaca;color:#b91c1c;border:none;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;line-height:1;}
   .top3-info-btn:hover{background:#fca5a5;}
   .top3-explain{font-size:12px;color:#7f1d1d;background:#fff1f1;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.6;}
+
+  .matrix-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:700px){.matrix-grid{grid-template-columns:1fr;}}
+  .matrix-quad{border:3px solid;border-radius:14px;padding:18px;min-height:140px;}
+  .matrix-quad h4{margin:0 0 12px;font-size:22px;font-weight:800;}
+  .matrix-tag{display:inline-block;border:1.5px solid;border-radius:8px;padding:4px 12px;font-size:12px;font-weight:700;margin-bottom:10px;background:#fff;}
+  .matrix-quad .task-list{gap:8px;}
+  .matrix-quad .empty{background:transparent;border:none;padding:8px;font-size:12px;}
   .top3-explain{font-size:12px;color:#7f1d1d;background:#fef2f2;border:1px solid #fecaca;border-radius:8px;padding:10px 12px;margin-bottom:10px;line-height:1.5;display:none;}
   .top3-explain.open{display:block;}
 
@@ -180,6 +190,57 @@
   .login-error{color:#ef4444;font-size:13px;margin-top:6px;min-height:16px;}
   .login-success{color:#0891b2;font-size:13px;margin-top:6px;min-height:16px;}
   .login-note{font-size:11px;color:var(--slate-400);margin-top:16px;line-height:1.5;}
+
+  /* ===== Vibrant light theme — blended blues ===== */
+  body{
+    background: linear-gradient(160deg, #eff6ff 0%, #e0f2fe 35%, #f0f9ff 70%, #eef2ff 100%);
+    color: #1e293b;
+  }
+  .header h1{
+    background: linear-gradient(90deg, #1d4ed8, #0891b2, #38bdf8);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .header p{color:#2563eb;opacity:.75;}
+  .card{background:#ffffff;border:1px solid #dbeafe;box-shadow:0 4px 18px rgba(37,99,235,.10);}
+  .btn-primary{background:linear-gradient(90deg,#1d4ed8,#0891b2);box-shadow:0 4px 14px rgba(8,145,178,.35);}
+  .btn-primary:hover{background:linear-gradient(90deg,#1e40af,#0e7490);}
+  .btn-secondary{background:#fff;color:#1d4ed8;border:1.5px solid #bfdbfe;}
+  .btn-secondary:hover{background:#eff6ff;}
+  .stat-card:nth-of-type(1) .stat-icon{background:#dbeafe;}
+  .stat-card:nth-of-type(1) .stat-value{color:#1d4ed8;}
+  .stat-card:nth-of-type(2) .stat-icon{background:#cffafe;}
+  .stat-card:nth-of-type(2) .stat-value{color:#0891b2;}
+  .stat-card:nth-of-type(3) .stat-icon{background:#e0f2fe;}
+  .stat-card:nth-of-type(3) .stat-value{color:#0284c7;}
+  .stat-card:nth-of-type(4) .stat-icon{background:#e0e7ff;}
+  .stat-card:nth-of-type(4) .stat-value{color:#4338ca;}
+  .chart-card h3{color:#1d4ed8;}
+  .chart-head span{color:#0891b2;}
+  select, input[type=text], input[type=email], input[type=date], input[type=number], input[type=password], textarea{
+    border:1.5px solid #dbeafe;
+  }
+  select:focus, input:focus, textarea:focus{outline:none;border-color:#93c5fd;}
+  .view-toggle{background:#eff6ff;}
+  .view-toggle-btn.active{background:#fff;color:#1d4ed8;box-shadow:0 2px 6px rgba(29,78,216,.25);}
+  .progress-fill{background:linear-gradient(90deg,#1d4ed8,#0891b2);}
+  .cal-cell.today{border:2px solid #0891b2;}
+  .cal-daynum{color:#1d4ed8;}
+  .modal-head h3{color:#1d4ed8;}
+  .btn-save{background:linear-gradient(90deg,#1d4ed8,#0891b2);}
+  .btn-save:hover{background:linear-gradient(90deg,#1e40af,#0e7490);}
+  .btn-add{background:linear-gradient(90deg,#1d4ed8,#0891b2);}
+  .note-item{background:#eff6ff;color:#1d4ed8;}
+
+  #loginScreen{background:transparent;}
+  .login-card{box-shadow:0 12px 34px rgba(29,78,216,.18);border:1px solid #dbeafe;}
+  .login-card h2{background:linear-gradient(90deg,#1d4ed8,#0891b2);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .login-tab.active{color:#1d4ed8;}
+
+  .reminders-card{background:linear-gradient(135deg,#f0f9ff,#fff);border:1px solid #7dd3fc;}
+  .top3-card{background:linear-gradient(135deg,#eff6ff,#fff);border:2px solid #93c5fd;}
+  .habits-card{background:linear-gradient(135deg,#ecfeff,#fff);border:1px solid #67e8f9;}
+
+  .quad-dot{box-shadow:0 0 0 3px rgba(0,0,0,.04);}
 </style>
 </head>
 <body>
@@ -258,6 +319,7 @@
       <button class="view-toggle-btn active" id="viewListBtn" data-i18n="viewList">📋 List</button>
       <button class="view-toggle-btn" id="viewCalendarBtn" data-i18n="viewCalendar">📅 Calendar</button>
       <button class="view-toggle-btn" id="viewReviewBtn" data-i18n="viewReview">📊 Monthly Review</button>
+      <button class="view-toggle-btn" id="viewMatrixBtn" data-i18n="viewMatrix">🗂 Priority Matrix</button>
     </div>
   </div>
 
@@ -303,6 +365,34 @@
       <textarea id="revNotes" style="min-height:100px;"></textarea>
       <button class="btn-save" id="revSaveNotesBtn" style="margin-top:10px;" data-i18n="saveNotes">Save Notes</button>
       <span id="revSavedMsg" style="margin-inline-start:10px;font-size:12px;color:var(--cyan-600);display:none;" data-i18n="saved">Saved ✓</span>
+    </div>
+  </div>
+
+  <div id="matrixView" style="display:none;">
+    <div class="card" style="padding:16px;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+      <span style="font-size:13px;color:var(--slate-500);" data-i18n="matrixExplain">Important is set on each task. Urgent is calculated automatically: overdue, due today, or due within 2 days.</span>
+    </div>
+    <div class="matrix-grid">
+      <div class="matrix-quad" style="background:#fef2f2;border-color:#991b1b;">
+        <div class="matrix-tag" style="border-color:#991b1b;color:#991b1b;" data-i18n="matrixCrisisTag">Important and urgent</div>
+        <h4 style="color:#991b1b;" data-i18n="matrixCrisisTitle">Crisis Square</h4>
+        <div id="matrixCrisis" class="task-list"></div>
+      </div>
+      <div class="matrix-quad" style="background:#f0fdf4;border-color:#166534;">
+        <div class="matrix-tag" style="border-color:#166534;color:#166534;" data-i18n="matrixFutureTag">Important, not urgent</div>
+        <h4 style="color:#166534;" data-i18n="matrixFutureTitle">Future Square</h4>
+        <div id="matrixFuture" class="task-list"></div>
+      </div>
+      <div class="matrix-quad" style="background:#fdf4ff;border-color:#86198f;">
+        <div class="matrix-tag" style="border-color:#86198f;color:#86198f;" data-i18n="matrixDeceptionTag">Urgent, not important</div>
+        <h4 style="color:#86198f;" data-i18n="matrixDeceptionTitle">Deception Square</h4>
+        <div id="matrixDeception" class="task-list"></div>
+      </div>
+      <div class="matrix-quad" style="background:#fdf2f8;border-color:#9f1239;">
+        <div class="matrix-tag" style="border-color:#9f1239;color:#9f1239;" data-i18n="matrixWasteTag">Not urgent, not important</div>
+        <h4 style="color:#9f1239;" data-i18n="matrixWasteTitle">Waste Square</h4>
+        <div id="matrixWaste" class="task-list"></div>
+      </div>
     </div>
   </div>
 
@@ -476,6 +566,17 @@ const TRANSLATIONS = {
     viewList: "📋 List",
     viewCalendar: "📅 Calendar",
     viewReview: "📊 Monthly Review",
+    viewMatrix: "🗂 Priority Matrix",
+    matrixExplain: "Important is based on Priority (High or Medium = important, Low = not important). Urgent is calculated automatically: overdue, due today, or due within 2 days.",
+    matrixCrisisTag: "Important and urgent",
+    matrixCrisisTitle: "Crisis Square",
+    matrixFutureTag: "Important, not urgent",
+    matrixFutureTitle: "Future Square",
+    matrixDeceptionTag: "Urgent, not important",
+    matrixDeceptionTitle: "Deception Square",
+    matrixWasteTag: "Not urgent, not important",
+    matrixWasteTitle: "Waste Square",
+    matrixEmpty: "Nothing here",
     viewHabits: "🔁 Habits",
     prev: "← Prev",
     next: "Next →",
@@ -494,6 +595,7 @@ const TRANSLATIONS = {
     priorityLow: "🔵 Low",
     priorityMedium: "🟡 Medium",
     priorityHigh: "🔴 High",
+    isImportantLabel: "⭐ This is an important task",
     startDate: "Start Date",
     targetDate: "Target Date",
     saveTask: "Save Task",
@@ -539,6 +641,17 @@ const TRANSLATIONS = {
     viewList: "📋 قائمة",
     viewCalendar: "📅 كالندر",
     viewReview: "📊 مراجعة شهرية",
+    viewMatrix: "🗂 مصفوفة الأولويات",
+    matrixExplain: "\"هام\" بتتحدد من الأولوية (High أو Medium = هام، Low = مش هام). \"عاجل\" بيتحسب تلقائي: متأخرة، مستحقة النهاردة، أو خلال يومين.",
+    matrixCrisisTag: "هام وعاجل",
+    matrixCrisisTitle: "مربع الأزمات",
+    matrixFutureTag: "هام وغير عاجل",
+    matrixFutureTitle: "مربع المستقبل",
+    matrixDeceptionTag: "غير هام وعاجل",
+    matrixDeceptionTitle: "مربع الخداع",
+    matrixWasteTag: "غير هام وغير عاجل",
+    matrixWasteTitle: "مربع الضياع",
+    matrixEmpty: "مفيش حاجة هنا",
     viewHabits: "🔁 العادات",
     prev: "→ السابق",
     next: "التالي ←",
@@ -557,6 +670,7 @@ const TRANSLATIONS = {
     priorityLow: "🔵 منخفضة",
     priorityMedium: "🟡 متوسطة",
     priorityHigh: "🔴 عالية",
+    isImportantLabel: "⭐ دي مهمة هامة",
     startDate: "تاريخ البدء",
     targetDate: "الموعد المستهدف",
     saveTask: "حفظ المهمة",
@@ -637,11 +751,22 @@ function rowToTask(row){
     category: row.category,
     status: row.status,
     priority: row.priority || 'medium',
+    isImportant: !!row.is_important,
     progress: row.progress,
     start: row.start_date || '',
     due: row.due_date || '',
     notes: row.notes || [],
   };
+}
+
+// A task counts as "urgent" if it's due today, overdue, or due within the next 2 days
+function isTaskUrgent(t){
+  if (!t.due) return false;
+  const todayStr = todayDateStr();
+  const soon = new Date();
+  soon.setDate(soon.getDate() + 2);
+  const soonStr = soon.toISOString().slice(0,10);
+  return t.due <= soonStr; // covers overdue, today, and within 2 days
 }
 
 async function fetchTasks(){
@@ -1236,11 +1361,14 @@ function setView(view){
   document.getElementById('taskList').style.display = view === 'list' ? 'grid' : 'none';
   document.getElementById('calendarView').style.display = view === 'calendar' ? 'block' : 'none';
   document.getElementById('reviewView').style.display = view === 'review' ? 'block' : 'none';
+  document.getElementById('matrixView').style.display = view === 'matrix' ? 'block' : 'none';
   document.getElementById('viewListBtn').classList.toggle('active', view === 'list');
   document.getElementById('viewCalendarBtn').classList.toggle('active', view === 'calendar');
   document.getElementById('viewReviewBtn').classList.toggle('active', view === 'review');
+  document.getElementById('viewMatrixBtn').classList.toggle('active', view === 'matrix');
   if (view === 'calendar') renderCalendar();
   if (view === 'review') renderReview();
+  if (view === 'matrix') renderMatrix();
 }
 
 function renderCalendar(){
@@ -1292,6 +1420,7 @@ function renderCalendar(){
 document.getElementById('viewListBtn').addEventListener('click', ()=> setView('list'));
 document.getElementById('viewCalendarBtn').addEventListener('click', ()=> setView('calendar'));
 document.getElementById('viewReviewBtn').addEventListener('click', ()=> setView('review'));
+document.getElementById('viewMatrixBtn').addEventListener('click', ()=> setView('matrix'));
 document.getElementById('calPrevBtn').addEventListener('click', ()=>{
   calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
   renderCalendar();
@@ -1310,9 +1439,12 @@ function taskCardHtml(t){
   const catLabel = (CATEGORY_LABEL[t.category] && CATEGORY_LABEL[t.category][currentLang]) || t.category || '';
   const dueLabel = currentLang === 'ar' ? 'الاستحقاق' : 'Due';
   const notSetLabel = currentLang === 'ar' ? 'غير محدد' : 'Not set';
-  return `<div class="card task-card" data-id="${t.id}">
+  const quad = getQuadrantInfo(t);
+  const quadLabel = currentLang === 'ar' ? quad.labelAr : quad.labelEn;
+  return `<div class="card task-card" data-id="${t.id}" style="border-inline-start:4px solid ${quad.color};">
     <div class="task-main">
       <div class="task-top">
+        <span class="quad-dot" style="background:${quad.color};" title="${quadLabel}"></span>
         <span class="task-name">${escapeHtml(t.name)}</span>
         <span class="badge" style="background:${st.bg};color:${st.color}">${st.label[currentLang]}</span>
         <span class="badge" style="background:${pr.bg};color:${pr.color}">${pr.icon} ${pr.label[currentLang]}</span>
@@ -1326,6 +1458,58 @@ function taskCardHtml(t){
       <div class="progress-track"><div class="progress-fill" style="width:${t.progress}%"></div></div>
     </div>
   </div>`;
+}
+
+// A task counts as "important" based on its priority: High or Medium = important, Low = not important
+function isTaskImportant(t){
+  return t.priority !== 'low';
+}
+
+// Returns which of the 4 priority-matrix quadrants a task falls into, with its color and label
+function getQuadrantInfo(t){
+  const urgent = isTaskUrgent(t);
+  const important = isTaskImportant(t);
+  if (important && urgent) return { color: '#991b1b', labelEn: 'Crisis', labelAr: 'أزمات' };
+  if (important && !urgent) return { color: '#166534', labelEn: 'Future', labelAr: 'مستقبل' };
+  if (!important && urgent) return { color: '#86198f', labelEn: 'Deception', labelAr: 'خداع' };
+  return { color: '#9f1239', labelEn: 'Waste', labelAr: 'ضياع' };
+}
+
+function renderMatrix(){
+  const priorityRank = { high: 0, medium: 1, low: 2 };
+  const byPriority = (a, b) => (priorityRank[a.priority] ?? 1) - (priorityRank[b.priority] ?? 1);
+
+  const active = tasks.filter(t => t.status !== 'done');
+  const buckets = {
+    crisis: [],    // important + urgent
+    future: [],    // important, not urgent
+    deception: [], // urgent, not important
+    waste: [],     // neither
+  };
+  active.forEach(t=>{
+    const urgent = isTaskUrgent(t);
+    const important = isTaskImportant(t);
+    if (important && urgent) buckets.crisis.push(t);
+    else if (important && !urgent) buckets.future.push(t);
+    else if (!important && urgent) buckets.deception.push(t);
+    else buckets.waste.push(t);
+  });
+  Object.values(buckets).forEach(list => list.sort(byPriority));
+
+  const fill = (elId, list)=>{
+    const el = document.getElementById(elId);
+    el.innerHTML = list.length
+      ? list.map(taskCardHtml).join('')
+      : `<div class="empty">${t('matrixEmpty')}</div>`;
+    el.querySelectorAll('.task-card').forEach(card=>{
+      card.addEventListener('click', ()=> openDetail(card.dataset.id));
+    });
+  };
+
+  fill('matrixCrisis', buckets.crisis);
+  fill('matrixFuture', buckets.future);
+  fill('matrixDeception', buckets.deception);
+  fill('matrixWaste', buckets.waste);
 }
 
 function reviewNotesKey(){
